@@ -18,12 +18,12 @@ More information coming soon(ish)
 ##The Board
 Short Description coming soon.
 
-[For Detailed Information, click here](https://github.com/1n5aN1aC/RocketDuino/tree/master/PCB)
+[For Detailed PCB Information, click here](https://github.com/1n5aN1aC/RocketDuino/tree/master/PCB)
 
 ##The Software
 Short Description coming soon.
 
-[For Detailed Information, click here](https://github.com/1n5aN1aC/RocketDuino/tree/master/Arduino)
+[For Detailed Arduino Information, click here](https://github.com/1n5aN1aC/RocketDuino/tree/master/Arduino)
 
 ##The Results
 We haven't actually tested anything in the real world yet... :(
