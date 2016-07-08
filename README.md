@@ -16,10 +16,14 @@ Data Transmission is done with a LoRa 433/900 MHz trasmitter, but any data trans
 More information coming soon(ish)
 
 ##The Board
-Eagle files & explaination coming soon!
+Short Description coming soon.
+
+[For Detailed Information, click here](https://github.com/1n5aN1aC/RocketDuino/tree/master/PCB)
 
 ##The Software
-Extensive explaination fot he software's features coming soon!
+Short Description coming soon.
+
+[For Detailed Information, click here](https://github.com/1n5aN1aC/RocketDuino/tree/master/Arduino)
 
 ##The Results
 We haven't actually tested anything in the real world yet... :(
