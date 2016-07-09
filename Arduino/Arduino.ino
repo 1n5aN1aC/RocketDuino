@@ -1,15 +1,18 @@
 #include <TinyGPS++.h>
+#define ROCKETDUINO_VERSION "0.1.2"
 
-#define ROCKETDUINO_VERSION "0.1.1"
-
+// Baud rate settings
 #define GPS_BAUD 9600
 #define TX_BAUD 38400
 #define ACTUAL_TX_BAUD 1200
+#define TARGET_TX_BAUD 1000
 
+// Frequency of transmissions
 #define TELEMETRY_FREQUENCY 500
 #define STATUS_FREQUENCY 1000
 
-#define ERR_CHECK_FREQUENCY 5000
+// Pin designations
+#define VSENSE_PIN 12
 
 
 // The TinyGPS++ object(s)
@@ -25,8 +28,11 @@ unsigned int lastBadSum  = 0;
 unsigned int lastGoodSum = 0;
 unsigned int lastWithFix = 0;
 
+
 //
-// 
+// Run Initial setup Tasks
+//
+// 1. Send Version information
 //
 void setup() {
   // initialize both serial ports:
@@ -40,8 +46,13 @@ void setup() {
   Serial.println();
 }
 
+
 //
-// 
+// Main Loop Tasks
+//
+// 1. Recieve & Process GPS data
+// 2. Send Telemetry if needed
+// 3. Send Status information if needed.
 //
 void loop() {
   while (Serial1.available() > 0) {
@@ -55,32 +66,33 @@ void loop() {
     statusTX();
 }
 
+
 //
 // Sends telemetry information
 // 
-// (TIME, LAT, LONG, ALT, SOG, COG, Pressure)
+// (LAT, LONG, ALT, SOG, COG, Pressure)
 //
 void telemetryTX() {
-  Serial.print(F("T "));
+  Serial.print("T,");
   
-  Serial.print(F("Lat="));
   Serial.print(gps.location.lat(), 6);
-  Serial.print(F(" Long="));
+  Serial.print(",");
   Serial.print(gps.location.lng(), 6);
 
-  Serial.print(F(" ALT="));
+  Serial.print(",");
   Serial.print(gps.altitude.meters());
 
-  Serial.print(F(" KPH="));
+  Serial.print(",");
   Serial.print(gps.speed.kmph());
 
-  Serial.print(F(" Course="));
+  Serial.print(",");
   Serial.print(gps.course.deg());
 
-  //Pressure here?
-  
-  Serial.println();
+  Serial.print(",");
+  //Put pressure here?
 
+  //Finally, update last Packet variable
+  Serial.println();
   lastTelemetryTX = millis();
 }
 
@@ -88,7 +100,7 @@ void telemetryTX() {
 //
 // Status update Packet:
 // 
-// S,21594500,00000,6,165,165,2/1/0
+// S,21594500,00000,6,165,165,532,2/1/0
 // S = This is a status packet
 //   21594500 = GPS time
 //            0 = Time validity byte (0-9 = seconds since update.  X=invalid / >10 seconds)
@@ -99,11 +111,12 @@ void telemetryTX() {
 //                  6 = Satellites used for fix
 //                    165 = HDOP (Horrizontal dillution of precision)
 //                        165 = VDOP (Vertical dillution of precision)
-//                            2/1/0 = 2 new packets with valid fix / 1 new packet with no fix / 0 packets with bad checksums
+//                            532 = battery input voltage.  In centivolts (5.32v) (After diode, before everything else)
+//                                2/1/0 = 2 new packets with valid fix / 1 new packet with no fix / 0 packets with bad checksums
 //
 void statusTX() {
   //Static Packet 
-  Serial.print(F("S,"));
+  Serial.print("S,");
 
   //Current Time
   Serial.print(gps.time.value());
@@ -151,7 +164,7 @@ void statusTX() {
   else
     Serial.print(0);
 
-  //Horizontal dillution of Precision
+  //Horizontal Dillution of Precision
   Serial.print(",");
   Serial.print(gps.hdop.value());
 
@@ -159,15 +172,21 @@ void statusTX() {
   Serial.print(",");
   Serial.print(VDOP.value());
 
-  //Number of good packets with fixes
+  //Battery Volatage
+  Serial.print(",");
+  float sample = analogRead(VSENSE_PIN);
+  float voltage = (sample * 5.015) / 1024.0 * 5.7 * 100;   //5.7 = voltage divider ratio
+  Serial.print( (int) voltage );
+
+  //Number of (new) good packets with fixes
   Serial.print(",");
   Serial.print( (gps.sentencesWithFix() - lastWithFix) );
 
-  //Number of good packets with no fix
+  //Number of (new) good packets with NO fix
   Serial.print("/");
   Serial.print( (gps.passedChecksum() - lastGoodSum) - (gps.sentencesWithFix() - lastWithFix) );
 
-  //Number of bad packets
+  //Number of (new) bad packets
   Serial.print("/");
   Serial.print( gps.failedChecksum() - lastBadSum );
 
@@ -176,6 +195,7 @@ void statusTX() {
   lastBadSum = gps.failedChecksum();
   lastWithFix = gps.sentencesWithFix();
 
+  //Finally, update last Packet variable
   Serial.println();
   lastStatusTX = millis();
 }
