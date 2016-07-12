@@ -10433,11 +10433,12 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <segment>
 <pinref part="C6" gate="G$1" pin="1"/>
 <wire x1="175.26" y1="38.1" x2="175.26" y2="40.64" width="0.1524" layer="91"/>
-<wire x1="175.26" y1="40.64" x2="223.52" y2="40.64" width="0.1524" layer="91"/>
+<wire x1="175.26" y1="40.64" x2="220.98" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="J1" gate="G$1" pin="DTR"/>
 <label x="198.12" y="40.64" size="1.778" layer="95"/>
-<wire x1="228.6" y1="30.48" x2="223.52" y2="30.48" width="0.1524" layer="91"/>
-<wire x1="223.52" y1="30.48" x2="223.52" y2="40.64" width="0.1524" layer="91"/>
+<wire x1="228.6" y1="30.48" x2="220.98" y2="30.48" width="0.1524" layer="91"/>
+<label x="223.52" y="30.48" size="1.778" layer="95"/>
+<wire x1="220.98" y1="30.48" x2="220.98" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="ICSP" gate="G$1" pin="5"/>
