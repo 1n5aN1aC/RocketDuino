@@ -2,7 +2,7 @@
 #define ROCKETDUINO_VERSION "0.1.2"
 
 // Baud rate settings
-#define GPS_BAUD 9600
+#define GPS_BAUD 57600
 #define TX_BAUD 57600
 #define ACTUAL_TX_BAUD 1200
 #define TARGET_TX_BAUD 1000
@@ -66,7 +66,7 @@ void loop() {
   //If we have received a character from ground control, process it.
   if (Serial.available() )
   {
-     ch = Serial.read();
+     byte ch = Serial.read();
 	 process_command(ch);
   }
 
@@ -83,7 +83,14 @@ void loop() {
 //
 // Sends telemetry information
 // 
-// (LAT, LONG, ALT, SOG, COG, Pressure)
+// T,44.982719,-123.337142,98.5,1.17,0.00,
+// T = this is a telemetry packet
+//   44.982719 = Lattitude
+//             -123.337142 = Longitude
+//                         98.5 = Elevation in Meters
+//                              1.17 = Speed in Kph
+//                                   0.00 = Course in degrees
+//                                        ___ = pressure
 //
 void telemetryTX() {
   Serial.print("T,");
@@ -137,7 +144,7 @@ void statusTX() {
   Serial.print (",");
 
   //Uplink Status
-  timeSince = millis() - lastRX;
+  unsigned long timeSince = millis() - lastRX;
   if (timeSince < 10000) {
     Serial.print( timeSince / 1000 );
   } else {
@@ -228,7 +235,7 @@ void statusTX() {
 // Valid packets:
 // P = 'ping' Keeps track of last RX from Ground Control
 //
-void process_command(Byte ch) {
+void process_command(byte ch) {
   if (ch == 'P') {
     lastRX = millis();
   }
