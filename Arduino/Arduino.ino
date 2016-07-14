@@ -57,6 +57,7 @@ void setup() {
 // 3. Send Telemetry if needed
 // 4. Send Status information if needed.
 //
+byte ch;
 void loop() {
   //If there is any new GPS information, read & process it
   while (Serial1.available() > 0) {
@@ -64,10 +65,9 @@ void loop() {
   }
 
   //If we have received a character from ground control, process it.
-  if (Serial.available() )
-  {
-     byte ch = Serial.read();
-	 process_command(ch);
+  if (Serial.available() ) {
+    ch = Serial.read();
+    process_command(ch);
   }
 
   //If we need to send a new telemetry packet, do so.
@@ -135,6 +135,7 @@ void telemetryTX() {
 //                             532 = battery input voltage.  In centivolts (5.32v) (After diode, before everything else)
 //                                 2/1/0 = 2 new packets with valid fix / 1 new packet with no fix / 0 packets with bad checksums
 //
+unsigned long timeSince;
 void statusTX() {
   //Static Packet 
   Serial.print("S,");
@@ -144,7 +145,7 @@ void statusTX() {
   Serial.print (",");
 
   //Uplink Status
-  unsigned long timeSince = millis() - lastRX;
+  timeSince = millis() - lastRX;
   if (timeSince < 10000) {
     Serial.print( timeSince / 1000 );
   } else {
