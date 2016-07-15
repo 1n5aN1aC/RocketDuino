@@ -1955,6 +1955,11 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <vertex x="0.8866" y="-0.23263125"/>
 </polygon>
 </package>
+<package name="CREATIVE_COMMONS">
+<text x="-20.32" y="5.08" size="1.778" layer="51" font="vector">Released under the Creative Commons Attribution Share-Alike 4.0 License</text>
+<text x="0" y="2.54" size="1.778" layer="51" font="vector"> https://creativecommons.org/licenses/by-sa/4.0/</text>
+<text x="11.43" y="0" size="1.778" layer="51" font="vector">Designed by:</text>
+</package>
 </packages>
 <symbols>
 <symbol name="DGND">
@@ -5528,6 +5533,44 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <text x="-1.016" y="3.556" size="1.778" layer="96">&gt;VALUE</text>
 <pin name="VIN" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 </symbol>
+<symbol name="FRAME_LEDGER">
+<wire x1="0" y1="0" x2="0" y2="279.4" width="0.4064" layer="94"/>
+<wire x1="0" y1="279.4" x2="431.8" y2="279.4" width="0.4064" layer="94"/>
+<wire x1="431.8" y1="279.4" x2="431.8" y2="0" width="0.4064" layer="94"/>
+<wire x1="431.8" y1="0" x2="0" y2="0" width="0.4064" layer="94"/>
+</symbol>
+<symbol name="DOCFIELD">
+<wire x1="0" y1="0" x2="71.12" y2="0" width="0.254" layer="94"/>
+<wire x1="101.6" y1="15.24" x2="87.63" y2="15.24" width="0.254" layer="94"/>
+<wire x1="0" y1="0" x2="0" y2="5.08" width="0.254" layer="94"/>
+<wire x1="0" y1="5.08" x2="71.12" y2="5.08" width="0.254" layer="94"/>
+<wire x1="0" y1="5.08" x2="0" y2="15.24" width="0.254" layer="94"/>
+<wire x1="101.6" y1="15.24" x2="101.6" y2="5.08" width="0.254" layer="94"/>
+<wire x1="71.12" y1="5.08" x2="71.12" y2="0" width="0.254" layer="94"/>
+<wire x1="71.12" y1="5.08" x2="87.63" y2="5.08" width="0.254" layer="94"/>
+<wire x1="71.12" y1="0" x2="101.6" y2="0" width="0.254" layer="94"/>
+<wire x1="87.63" y1="15.24" x2="87.63" y2="5.08" width="0.254" layer="94"/>
+<wire x1="87.63" y1="15.24" x2="0" y2="15.24" width="0.254" layer="94"/>
+<wire x1="87.63" y1="5.08" x2="101.6" y2="5.08" width="0.254" layer="94"/>
+<wire x1="101.6" y1="5.08" x2="101.6" y2="0" width="0.254" layer="94"/>
+<wire x1="0" y1="15.24" x2="0" y2="22.86" width="0.254" layer="94"/>
+<wire x1="101.6" y1="35.56" x2="0" y2="35.56" width="0.254" layer="94"/>
+<wire x1="101.6" y1="35.56" x2="101.6" y2="22.86" width="0.254" layer="94"/>
+<wire x1="0" y1="22.86" x2="101.6" y2="22.86" width="0.254" layer="94"/>
+<wire x1="0" y1="22.86" x2="0" y2="35.56" width="0.254" layer="94"/>
+<wire x1="101.6" y1="22.86" x2="101.6" y2="15.24" width="0.254" layer="94"/>
+<text x="1.27" y="1.27" size="2.54" layer="94" font="vector">Date:</text>
+<text x="12.7" y="1.27" size="2.54" layer="94" font="vector">&gt;LAST_DATE_TIME</text>
+<text x="72.39" y="1.27" size="2.54" layer="94" font="vector">Sheet:</text>
+<text x="86.36" y="1.27" size="2.54" layer="94" font="vector">&gt;SHEET</text>
+<text x="88.9" y="11.43" size="2.54" layer="94" font="vector">REV:</text>
+<text x="1.524" y="17.78" size="2.54" layer="94" font="vector">TITLE:</text>
+<text x="15.494" y="17.78" size="2.7432" layer="94" font="vector">&gt;DRAWING_NAME</text>
+<text x="2.54" y="31.75" size="1.9304" layer="94">Released under the Creative Commons</text>
+<text x="2.54" y="27.94" size="1.9304" layer="94">Attribution Share-Alike 4.0 License</text>
+<text x="2.54" y="24.13" size="1.9304" layer="94"> https://creativecommons.org/licenses/by-sa/4.0/</text>
+<text x="1.27" y="11.43" size="2.54" layer="94">Design by:</text>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="GND" prefix="GND">
@@ -5607,6 +5650,21 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </gates>
 <devices>
 <device name="">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="FRAME-LEDGER" prefix="FRAME">
+<description>&lt;b&gt;Schematic Frame&lt;/b&gt;&lt;p&gt;
+Standard 11x14 US Ledger frame</description>
+<gates>
+<gate name="G$1" symbol="FRAME_LEDGER" x="0" y="0"/>
+<gate name="G$2" symbol="DOCFIELD" x="330.2" y="0" addlevel="must"/>
+</gates>
+<devices>
+<device name="" package="CREATIVE_COMMONS">
 <technologies>
 <technology name=""/>
 </technologies>
@@ -11368,6 +11426,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="SUPPLY10" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="GND14" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="TX/RX" library="SparkFun-Connectors" deviceset="M06" device="SILK_FEMALE_PTH"/>
+<part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-LEDGER" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -11397,7 +11456,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <wire x1="213.36" y1="162.56" x2="294.64" y2="162.56" width="0.1524" layer="105"/>
 <wire x1="294.64" y1="162.56" x2="294.64" y2="99.06" width="0.1524" layer="105"/>
 <text x="215.9" y="160.02" size="1.778" layer="105">LEDs</text>
-<text x="139.954" y="40.894" size="1.27" layer="105">(LED)</text>
+<text x="137.414" y="40.894" size="1.27" layer="105">(LED)</text>
 <wire x1="213.36" y1="223.52" x2="294.64" y2="223.52" width="0.1524" layer="105"/>
 <wire x1="294.64" y1="223.52" x2="294.64" y2="167.64" width="0.1524" layer="105"/>
 <wire x1="294.64" y1="167.64" x2="213.36" y2="167.64" width="0.1524" layer="105"/>
@@ -11416,6 +11475,8 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <text x="231.14" y="127" size="1.778" layer="97">yellow</text>
 <text x="231.14" y="139.7" size="1.778" layer="97">blue</text>
 <text x="231.14" y="152.4" size="1.778" layer="97">red</text>
+<text x="299.72" y="-35.56" size="5.08" layer="97">Joshua Villwock</text>
+<text x="368.554" y="-36.83" size="3.81" layer="97">0.1</text>
 </plain>
 <instances>
 <instance part="ATMEGA2560AU" gate="1" x="144.78" y="139.7"/>
@@ -11482,6 +11543,8 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <instance part="SUPPLY10" gate="G$1" x="264.16" y="71.12" rot="R180"/>
 <instance part="GND14" gate="1" x="259.08" y="71.12"/>
 <instance part="TX/RX" gate="G$1" x="17.78" y="167.64"/>
+<instance part="FRAME1" gate="G$1" x="-50.8" y="-43.18"/>
+<instance part="FRAME1" gate="G$2" x="279.4" y="-43.18"/>
 </instances>
 <busses>
 </busses>
@@ -11772,9 +11835,9 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <junction x="93.98" y="40.64"/>
 <pinref part="C4" gate="G$1" pin="1"/>
 <pinref part="C3" gate="G$1" pin="1"/>
-<label x="136.398" y="40.64" size="1.778" layer="95"/>
+<label x="133.858" y="40.64" size="1.778" layer="95"/>
 <pinref part="VREG" gate="G$1" pin="OUT"/>
-<wire x1="124.46" y1="40.64" x2="144.78" y2="40.64" width="0.1524" layer="91"/>
+<wire x1="124.46" y1="40.64" x2="142.24" y2="40.64" width="0.1524" layer="91"/>
 <wire x1="71.12" y1="40.64" x2="76.2" y2="40.64" width="0.1524" layer="91"/>
 <pinref part="VREG" gate="G$1" pin="OUT@1"/>
 <wire x1="76.2" y1="40.64" x2="83.82" y2="40.64" width="0.1524" layer="91"/>
@@ -12008,6 +12071,11 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <wire x1="241.3" y1="182.88" x2="220.98" y2="182.88" width="0.1524" layer="91"/>
 <junction x="241.3" y="182.88"/>
 </segment>
+<segment>
+<pinref part="ATMEGA2560AU" gate="1" pin="PJ5(PCINT14)"/>
+<wire x1="109.22" y1="101.6" x2="96.52" y2="101.6" width="0.1524" layer="91"/>
+<label x="96.52" y="101.6" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="CHARGE1" class="0">
 <segment>
@@ -12019,6 +12087,11 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <wire x1="236.22" y1="185.42" x2="236.22" y2="203.2" width="0.1524" layer="91"/>
 <pinref part="R8" gate="G$1" pin="1"/>
 <junction x="241.3" y="203.2"/>
+</segment>
+<segment>
+<pinref part="ATMEGA2560AU" gate="1" pin="PJ6(PCINT15)"/>
+<wire x1="109.22" y1="104.14" x2="96.52" y2="104.14" width="0.1524" layer="91"/>
+<label x="96.52" y="104.14" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="MOS1" class="0">
