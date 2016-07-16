@@ -3,13 +3,13 @@
 
 // Baud rate settings
 #define GPS_BAUD 57600
-#define TX_BAUD 57600
+#define TX_BAUD 9600
 #define ACTUAL_TX_BAUD 1200
 #define TARGET_TX_BAUD 1000
 
 // Frequency of transmissions
-#define TELEMETRY_FREQUENCY 500
-#define STATUS_FREQUENCY 1000
+#define TELEMETRY_FREQUENCY 1700
+#define STATUS_FREQUENCY 5000
 
 // Pin designations
 #define VSENSE_PIN 12
