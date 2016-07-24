@@ -10924,7 +10924,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="GND4" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="LOGO1" library="SparkFun-Aesthetics" deviceset="OSHW-LOGO" device="M" value="OSHW-LOGOM"/>
 <part name="GND5" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
-<part name="13" library="led" deviceset="LED" device="SML0805"/>
+<part name="INFO" library="led" deviceset="LED" device="SML0805"/>
 <part name="MOS" library="SparkFun-Connectors" deviceset="M02" device="LOCK_LONGPADS"/>
 <part name="SUPPLY1" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="SUPPLY3" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
@@ -11050,7 +11050,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <instance part="GND4" gate="1" x="259.08" y="63.5"/>
 <instance part="LOGO1" gate="G$1" x="187.96" y="248.92"/>
 <instance part="GND5" gate="1" x="281.94" y="121.92"/>
-<instance part="13" gate="G$1" x="185.42" y="30.48" rot="R90"/>
+<instance part="INFO" gate="G$1" x="185.42" y="30.48" rot="R90"/>
 <instance part="MOS" gate="G$1" x="299.72" y="256.54" rot="R180"/>
 <instance part="SUPPLY1" gate="G$1" x="68.58" y="200.66"/>
 <instance part="SUPPLY3" gate="G$1" x="269.24" y="137.16"/>
@@ -11139,7 +11139,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <wire x1="274.32" y1="124.46" x2="274.32" y2="127" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="13" gate="G$1" pin="C"/>
+<pinref part="INFO" gate="G$1" pin="C"/>
 <wire x1="198.12" y1="30.48" x2="190.5" y2="30.48" width="0.1524" layer="91"/>
 <pinref part="POWER" gate="G$1" pin="C"/>
 <pinref part="GND13" gate="1" pin="GND"/>
@@ -11337,7 +11337,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 </net>
 <net name="N$3" class="0">
 <segment>
-<pinref part="13" gate="G$1" pin="A"/>
+<pinref part="INFO" gate="G$1" pin="A"/>
 <wire x1="180.34" y1="30.48" x2="182.88" y2="30.48" width="0.1524" layer="91"/>
 <pinref part="R4" gate="G$1" pin="1"/>
 </segment>
