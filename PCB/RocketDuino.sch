@@ -11497,9 +11497,9 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <label x="73.66" y="71.12" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="SERIAL2" gate="G$1" pin="2"/>
-<wire x1="256.54" y1="185.42" x2="264.16" y2="185.42" width="0.1524" layer="91"/>
-<label x="259.08" y="185.42" size="1.778" layer="95"/>
+<pinref part="SERIAL2" gate="G$1" pin="3"/>
+<wire x1="256.54" y1="187.96" x2="264.16" y2="187.96" width="0.1524" layer="91"/>
+<label x="259.08" y="187.96" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="RX2" class="0">
@@ -11509,9 +11509,9 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <label x="73.66" y="68.58" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="SERIAL2" gate="G$1" pin="3"/>
-<wire x1="256.54" y1="187.96" x2="264.16" y2="187.96" width="0.1524" layer="91"/>
-<label x="259.08" y="187.96" size="1.778" layer="95"/>
+<pinref part="SERIAL2" gate="G$1" pin="2"/>
+<wire x1="256.54" y1="185.42" x2="264.16" y2="185.42" width="0.1524" layer="91"/>
+<label x="259.08" y="185.42" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VSENSE" class="0">
