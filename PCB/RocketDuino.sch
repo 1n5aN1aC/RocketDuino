@@ -10935,7 +10935,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="C3" library="SparkFun-Capacitors" deviceset="CAP" device="1206" value="10uF"/>
 <part name="C8" library="SparkFun-Capacitors" deviceset="CAP" device="1206" value="0.1uF"/>
 <part name="C9" library="SparkFun-Capacitors" deviceset="CAP" device="1206" value="0.22uF"/>
-<part name="R4" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="150Ω"/>
+<part name="R4" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="220Ω"/>
 <part name="R10" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="10KΩ"/>
 <part name="GND7" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="RESET" library="SparkFun-Electromechanical" deviceset="SWITCH_SPST_4_PIN" device="SQUARE"/>
@@ -10950,11 +10950,11 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="SUPPLY2" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="GND13" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="POWER" library="led" deviceset="LED" device="SML0805"/>
-<part name="R1" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="100Ω"/>
+<part name="R1" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="150Ω"/>
 <part name="GPS" library="led" deviceset="LED" device="SML0805"/>
-<part name="R3" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="100Ω"/>
+<part name="R3" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="150Ω"/>
 <part name="RX" library="led" deviceset="LED" device="SML0805"/>
-<part name="R2" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="150Ω"/>
+<part name="R2" library="SparkFun-Resistors" deviceset="RESISTOR" device="1206" value="220Ω"/>
 <part name="MOS1" library="SparkFun-DiscreteSemi" deviceset="MOSFET-NCHANNEL" device="FQP30N06L" value=""/>
 <part name="MOS2" library="SparkFun-DiscreteSemi" deviceset="MOSFET-NCHANNEL" device="FQP30N06L" value=""/>
 <part name="GND3" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
@@ -10981,6 +10981,8 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="GND16" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
 <part name="SERIAL2" library="SparkFun-Connectors" deviceset="M04" device="POLAR"/>
 <part name="SUPPLY6" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
+<part name="C11" library="SparkFun-Capacitors" deviceset="CAP" device="1206" value="0.1uF"/>
+<part name="C12" library="SparkFun-Capacitors" deviceset="CAP" device="1206" value="0.1uF"/>
 </parts>
 <sheets>
 <sheet>
@@ -11030,7 +11032,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <text x="147.32" y="30.48" size="1.778" layer="97">blue</text>
 <text x="147.32" y="40.64" size="1.778" layer="97">red</text>
 <text x="231.14" y="2.54" size="5.08" layer="97">Joshua Villwock</text>
-<text x="299.974" y="1.27" size="3.81" layer="97">0.4</text>
+<text x="299.974" y="1.27" size="3.81" layer="97">0.8</text>
 <wire x1="-5.08" y1="266.7" x2="312.42" y2="266.7" width="0.1524" layer="94"/>
 <wire x1="312.42" y1="266.7" x2="312.42" y2="-5.08" width="0.1524" layer="94"/>
 <wire x1="312.42" y1="-5.08" x2="-5.08" y2="-5.08" width="0.1524" layer="94"/>
@@ -11107,6 +11109,8 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <instance part="GND16" gate="1" x="231.14" y="180.34"/>
 <instance part="SERIAL2" gate="G$1" x="251.46" y="185.42"/>
 <instance part="SUPPLY6" gate="G$1" x="259.08" y="190.5"/>
+<instance part="C11" gate="G$1" x="48.26" y="180.34"/>
+<instance part="C12" gate="G$1" x="38.1" y="180.34"/>
 </instances>
 <busses>
 </busses>
@@ -11180,6 +11184,14 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <pinref part="C6" gate="G$1" pin="2"/>
 <wire x1="58.42" y1="177.8" x2="58.42" y2="172.72" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="172.72" x2="71.12" y2="172.72" width="0.1524" layer="91"/>
+<pinref part="C12" gate="G$1" pin="2"/>
+<wire x1="58.42" y1="172.72" x2="48.26" y2="172.72" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="172.72" x2="38.1" y2="172.72" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="172.72" x2="38.1" y2="177.8" width="0.1524" layer="91"/>
+<junction x="58.42" y="172.72"/>
+<pinref part="C11" gate="G$1" pin="2"/>
+<wire x1="48.26" y1="177.8" x2="48.26" y2="172.72" width="0.1524" layer="91"/>
+<junction x="48.26" y="172.72"/>
 </segment>
 <segment>
 <pinref part="C2" gate="G$1" pin="2"/>
@@ -11399,6 +11411,14 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <pinref part="C6" gate="G$1" pin="1"/>
 <wire x1="58.42" y1="185.42" x2="58.42" y2="190.5" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="190.5" x2="68.58" y2="190.5" width="0.1524" layer="91"/>
+<pinref part="C12" gate="G$1" pin="1"/>
+<wire x1="58.42" y1="190.5" x2="48.26" y2="190.5" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="190.5" x2="38.1" y2="190.5" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="190.5" x2="38.1" y2="185.42" width="0.1524" layer="91"/>
+<junction x="58.42" y="190.5"/>
+<pinref part="C11" gate="G$1" pin="1"/>
+<wire x1="48.26" y1="185.42" x2="48.26" y2="190.5" width="0.1524" layer="91"/>
+<junction x="48.26" y="190.5"/>
 </segment>
 <segment>
 <wire x1="93.98" y1="38.1" x2="93.98" y2="40.64" width="0.1524" layer="91"/>
@@ -11796,29 +11816,6 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 </nets>
 </sheet>
 </sheets>
-<errors>
-<approved hash="104,1,109.22,198.12,U1,AVCC,5V,,,"/>
-<approved hash="104,1,109.22,175.26,U1,GND1,GND,,,"/>
-<approved hash="104,1,109.22,172.72,U1,GND2,GND,,,"/>
-<approved hash="104,1,109.22,170.18,U1,GND3,GND,,,"/>
-<approved hash="104,1,109.22,185.42,U1,VCC1,5V,,,"/>
-<approved hash="104,1,109.22,182.88,U1,VCC2,5V,,,"/>
-<approved hash="104,1,109.22,180.34,U1,VCC3,5V,,,"/>
-<approved hash="113,1,192.553,20.32,D1,,,,,"/>
-<approved hash="113,1,275.59,140.022,13,,,,,"/>
-<approved hash="113,1,9.48267,35.7547,POWER,,,,,"/>
-<approved hash="113,1,236.22,76.3947,SERIAL,,,,,"/>
-<approved hash="113,1,163.109,30.0905,SW_RESET,,,,,"/>
-<approved hash="113,1,20.32,41.1268,D2,,,,,"/>
-<approved hash="113,1,264.16,26.4372,ICSP,,,,,"/>
-<approved hash="113,1,275.59,127.322,GPS,,,,,"/>
-<approved hash="113,1,275.59,114.622,RX,,,,,"/>
-<approved hash="113,1,280.077,195.385,CH_1,,,,,"/>
-<approved hash="113,1,280.077,180.145,CH_2,,,,,"/>
-<approved hash="113,1,64.0088,36.0426,VREG_1,,,,,"/>
-<approved hash="113,1,274.32,74.6972,I2C,,,,,"/>
-<approved hash="113,1,19.6427,170.375,TX/RX,,,,,"/>
-</errors>
 </schematic>
 </drawing>
 </eagle>
