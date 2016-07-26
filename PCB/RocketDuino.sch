@@ -11032,12 +11032,12 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <text x="147.32" y="30.48" size="1.778" layer="97">blue</text>
 <text x="147.32" y="40.64" size="1.778" layer="97">red</text>
 <text x="231.14" y="2.54" size="5.08" layer="97">Joshua Villwock</text>
-<text x="299.974" y="1.27" size="3.81" layer="97">0.8</text>
+<text x="299.974" y="1.27" size="3.81" layer="97">1.0</text>
 <wire x1="-5.08" y1="266.7" x2="312.42" y2="266.7" width="0.1524" layer="94"/>
 <wire x1="312.42" y1="266.7" x2="312.42" y2="-5.08" width="0.1524" layer="94"/>
 <wire x1="312.42" y1="-5.08" x2="-5.08" y2="-5.08" width="0.1524" layer="94"/>
 <wire x1="-5.08" y1="-5.08" x2="-5.08" y2="266.7" width="0.1524" layer="94"/>
-<text x="0" y="256.54" size="6.4516" layer="152">RocketDuino v0.4</text>
+<text x="0" y="256.54" size="6.4516" layer="152">RocketDuino</text>
 <wire x1="210.82" y1="106.68" x2="248.92" y2="106.68" width="0.1524" layer="105"/>
 <wire x1="210.82" y1="40.64" x2="248.92" y2="40.64" width="0.1524" layer="105"/>
 <wire x1="210.82" y1="40.64" x2="210.82" y2="106.68" width="0.1524" layer="105"/>
@@ -11817,6 +11817,23 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 </nets>
 </sheet>
 </sheets>
+<errors>
+<approved hash="113,1,294.153,73.66,D1,,,,,"/>
+<approved hash="113,1,186.69,30.8017,INFO,,,,,"/>
+<approved hash="113,1,295.317,253.805,MOS,,,,,"/>
+<approved hash="113,1,264.16,83.4305,RESET,,,,,"/>
+<approved hash="113,1,236.22,137.355,ICSP,,,,,"/>
+<approved hash="113,1,186.69,40.9617,POWER,,,,,"/>
+<approved hash="113,1,186.69,20.6417,GPS,,,,,"/>
+<approved hash="113,1,186.69,10.4817,RX,,,,,"/>
+<approved hash="113,1,295.317,238.565,CH_1,,,,,"/>
+<approved hash="113,1,295.317,223.325,CH_2,,,,,"/>
+<approved hash="113,1,63.5,36.0426,VREG,,,,,"/>
+<approved hash="113,1,287.02,186.457,I2C,,,,,"/>
+<approved hash="113,1,13.3773,34.0953,MAIN,,,,,"/>
+<approved hash="113,1,225.383,188.155,SERIAL1,,,,,"/>
+<approved hash="113,1,253.323,188.155,SERIAL2,,,,,"/>
+</errors>
 </schematic>
 </drawing>
 </eagle>
