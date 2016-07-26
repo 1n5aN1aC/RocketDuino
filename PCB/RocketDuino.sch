@@ -11340,7 +11340,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <segment>
 <pinref part="R4" gate="G$1" pin="2"/>
 <wire x1="170.18" y1="30.48" x2="157.48" y2="30.48" width="0.1524" layer="91"/>
-<label x="157.48" y="30.48" size="1.27" layer="95"/>
+<label x="157.48" y="30.48" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="ATMEGA2560AU" gate="1" pin="(OC0A/OC1C/PCINT7)PB7"/>
@@ -11613,7 +11613,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <segment>
 <pinref part="R3" gate="G$1" pin="2"/>
 <wire x1="170.18" y1="20.32" x2="157.48" y2="20.32" width="0.1524" layer="91"/>
-<label x="157.48" y="20.32" size="1.27" layer="95"/>
+<label x="157.48" y="20.32" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="ATMEGA2560AU" gate="1" pin="PH7(T4)"/>
@@ -11625,7 +11625,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <segment>
 <pinref part="R2" gate="G$1" pin="2"/>
 <wire x1="170.18" y1="10.16" x2="157.48" y2="10.16" width="0.1524" layer="91"/>
-<label x="157.48" y="10.16" size="1.27" layer="95"/>
+<label x="157.48" y="10.16" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="ATMEGA2560AU" gate="1" pin="(TOSC2)PG3"/>
