@@ -17,14 +17,29 @@
 
 // The TinyGPS++ object(s)
 TinyGPSPlus gps;
-TinyGPSCustom VDOP   (gps, "GPGSA", 18); // Vertical dillution Of Presicion
 
-//Time counters
+// Moving Average Values
+float avgBattery    = 0;
+int avgAltitude     = 0;
+int avgAcceleration = 0;
+
+// Current Mode of flight we are in.
+// <1 = failsafe
+// 0  = prep
+// 1  = powered flight
+// 2  = coast
+// 3  = apex
+// 4  = drouge deployed
+// 5  = main deployment
+// 6  = recovery
+int currMode = -1;
+
+// Time counters
 unsigned long lastTelemetryTX = 0UL;
 unsigned long lastStatusTX    = 0UL;
 unsigned long lastRX          = 0UL;
 
-//counters for last packet statistics send
+// Counters for last packet statistics send
 unsigned int lastBadSum  = 0;
 unsigned int lastGoodSum = 0;
 unsigned int lastWithFix = 0;
@@ -120,7 +135,7 @@ void telemetryTX() {
 //
 // Status update Packet:
 // 
-// S,21594500,000000,6,165,165,532,2/1/0
+// S,21594500,000000,6,165,532,2/1/0
 // S = This is a status packet
 //   21594500 = GPS time
 //            0 = Age of last ping from ground control
@@ -131,9 +146,8 @@ void telemetryTX() {
 //                 0 = Course validity byte
 //                   6 = Satellites used for fix
 //                     165 = HDOP (Horrizontal dillution of precision)
-//                         165 = VDOP (Vertical dillution of precision)
-//                             532 = battery input voltage.  In centivolts (5.32v) (After diode, before everything else)
-//                                 2/1/0 = 2 new packets with valid fix / 1 new packet with no fix / 0 packets with bad checksums
+//                         532 = battery input voltage.  In centivolts (5.32v) (After diode, before everything else)
+//                             2/1/0 = 2 new packets with valid fix / 1 new packet with no fix / 0 packets with bad checksums
 //
 unsigned long timeSince;
 void statusTX() {
@@ -189,18 +203,11 @@ void statusTX() {
 
   //Number of satellites
   Serial.print(",");
-  if (gps.satellites.age() < 10000)
-    Serial.print(gps.satellites.value());
-  else
-    Serial.print(0);
+  Serial.print(gps.satellites.value());
 
   //Horizontal Dillution of Precision
   Serial.print(",");
   Serial.print(gps.hdop.value());
-
-  //Vertical dillution of Precision
-  Serial.print(",");
-  Serial.print(VDOP.value());
 
   //Battery Volatage
   Serial.print(",");
