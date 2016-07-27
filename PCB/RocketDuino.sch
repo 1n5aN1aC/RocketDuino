@@ -10983,6 +10983,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <part name="C12" library="SparkFun-Capacitors" deviceset="CAP" device="1206" value="0.1uF"/>
 <part name="SUPPLY7" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
 <part name="GND10" library="SparkFun-Aesthetics" deviceset="GND" device=""/>
+<part name="LOGO2" library="SparkFun-Aesthetics" deviceset="OSHW-LOGO" device="M" value="OSHW-LOGOM"/>
 </parts>
 <sheets>
 <sheet>
@@ -11111,6 +11112,7 @@ Used, eg, on the Arduino Pro/ Pro Mini boards.&lt;br&gt;
 <instance part="C12" gate="G$1" x="38.1" y="180.34"/>
 <instance part="SUPPLY7" gate="G$1" x="269.24" y="185.42" rot="R180"/>
 <instance part="GND10" gate="1" x="269.24" y="193.04" rot="R180"/>
+<instance part="LOGO2" gate="G$1" x="15.24" y="71.12"/>
 </instances>
 <busses>
 </busses>
