@@ -15,7 +15,7 @@
 #define VSENSE_PIN 12
 
 
-// The TinyGPS++ object(s)
+// The TinyGPS++ object
 TinyGPSPlus gps;
 
 // Moving Average Values
@@ -98,14 +98,13 @@ void loop() {
 //
 // Sends telemetry information
 // 
-// T,44.982719,-123.337142,98.5,1.17,0.00,
+// T,44.982719,-123.337142,98.5,1.17,___
 // T = this is a telemetry packet
 //   44.982719 = Lattitude
 //             -123.337142 = Longitude
 //                         98.5 = Elevation in Meters
 //                              1.17 = Speed in Kph
-//                                   0.00 = Course in degrees
-//                                        ___ = pressure
+//                                   ___ = pressure
 //
 void telemetryTX() {
   Serial.print("T,");
@@ -119,9 +118,6 @@ void telemetryTX() {
 
   Serial.print(",");
   Serial.print(gps.speed.kmph());
-
-  Serial.print(",");
-  Serial.print(gps.course.deg());
 
   Serial.print(",");
   //Put pressure here?
