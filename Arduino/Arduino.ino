@@ -1,15 +1,16 @@
 #include <TinyGPS++.h>
-#define ROCKETDUINO_VERSION "0.1.2"
+#define ROCKETDUINO_VERSION "0.1.5"
 
 // Baud rate settings
-#define GPS_BAUD 57600
-#define TX_BAUD 9600
+#define GPS_BAUD       57600
+#define TX_BAUD        9600
 #define ACTUAL_TX_BAUD 1200
 #define TARGET_TX_BAUD 1000
 
-// Frequency of transmissions
+// Frequency of Tasks
 #define TELEMETRY_FREQUENCY 1700
-#define STATUS_FREQUENCY 5000
+#define STATUS_FREQUENCY    5000
+#define F_INFO_FREQUENCY    500
 
 // Pin designations
 #define VSENSE_PIN 12
@@ -35,6 +36,7 @@ int avgAcceleration = 0;
 int currMode = -1;
 
 // Time counters
+unsigned long lastInfoUpdate  = 0UL;
 unsigned long lastTelemetryTX = 0UL;
 unsigned long lastStatusTX    = 0UL;
 unsigned long lastRX          = 0UL;
@@ -71,6 +73,7 @@ void setup() {
 // 2. Recieve & Process Ground Control Packets
 // 3. Send Telemetry if needed
 // 4. Send Status information if needed.
+// 5. Calculate 'averages'
 //
 byte ch;
 void loop() {
@@ -92,12 +95,16 @@ void loop() {
   //If we need to send a new status packet, do so.
   if (millis() - lastStatusTX > STATUS_FREQUENCY)
     statusTX();
+
+  //If we need to
+  if (millis() - lastInfoUpdate > F_INFO_FREQUENCY)
+    update_flight_info();
 }
 
 
 //
 // Sends telemetry information
-// 
+//
 // T,44.982719,-123.337142,98.5,1.17,___
 // T = this is a telemetry packet
 //   44.982719 = Lattitude
@@ -108,7 +115,7 @@ void loop() {
 //
 void telemetryTX() {
   Serial.print("T,");
-  
+
   Serial.print(gps.location.lat(), 6);
   Serial.print(",");
   Serial.print(gps.location.lng(), 6);
@@ -130,7 +137,7 @@ void telemetryTX() {
 
 //
 // Status update Packet:
-// 
+//
 // S,21594500,000000,6,165,532,2/1/0
 // S = This is a status packet
 //   21594500 = GPS time
@@ -147,7 +154,7 @@ void telemetryTX() {
 //
 unsigned long timeSince;
 void statusTX() {
-  //Static Packet 
+  //Static Packet
   Serial.print("S,");
 
   //Current Time
@@ -231,6 +238,14 @@ void statusTX() {
   //Finally, update last Packet variable
   Serial.println();
   lastStatusTX = millis();
+}
+
+//
+// Updates allt he averages for altitude & speed, flight mode, etc.
+//
+void update_flight_info() {
+  int alt   = gps.altitude.meters();
+  int speed = gps.speed.kmph();
 }
 
 //
