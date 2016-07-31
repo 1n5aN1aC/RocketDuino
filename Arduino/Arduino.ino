@@ -8,21 +8,25 @@
 #define TARGET_TX_BAUD 1000
 
 // Frequency of Tasks
-#define TELEMETRY_FREQUENCY 1700
-#define STATUS_FREQUENCY    5000
+#define TELEMETRY_FREQUENCY 1000
+#define STATUS_FREQUENCY    2000
 #define F_INFO_FREQUENCY    500
 
+// settings for rolling averages
+#define BAT_AVG_ALPHA 178
+#define BAT_AVG_POWER 256
+
 // Pin designations
-#define VSENSE_PIN 12
+#define VSENSE_PIN A2
 
 
 // The TinyGPS++ object
 TinyGPSPlus gps;
 
 // Moving Average Values
-float avgBattery    = 0;
-int avgAltitude     = 0;
-int avgAcceleration = 0;
+long avgBattery    = 0;
+long avgAltitude     = 0;
+long avgAcceleration = 0;
 
 // Current Mode of flight we are in.
 // <1 = failsafe
@@ -241,11 +245,20 @@ void statusTX() {
 }
 
 //
-// Updates allt he averages for altitude & speed, flight mode, etc.
+// Updates all the averages for altitude & speed, flight mode, etc.
 //
 void update_flight_info() {
   int alt   = gps.altitude.meters();
+
+  
   int speed = gps.speed.kmph();
+  //long avgAltitude     = 0;
+  //long avgAcceleration = 0;
+
+  //Also check battery voltage
+  float sample = analogRead(VSENSE_PIN);
+  float centivolts = (sample * 5.015) / 1024.0 * 5.7 * 100;   //5.7 = voltage divider ratio
+  avgBattery = (BAT_AVG_ALPHA * centivolts + (BAT_AVG_POWER - BAT_AVG_ALPHA) * avgBattery ) / BAT_AVG_POWER;
 }
 
 //
@@ -262,3 +275,4 @@ void process_command(byte ch) {
     //something went wrong?  Bad packet.
   }
 }
+
