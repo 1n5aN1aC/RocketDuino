@@ -1,3 +1,9 @@
+//
+// File:    main.cpp
+// Author:  1n5aN1aC (Joshua Villwock)
+// Purpose: Handles primary logic for the RocketDuino
+//
+
 #include <TinyGPS++.h>
 #define ROCKETDUINO_VERSION "0.1.5"
 
@@ -7,14 +13,10 @@
 #define ACTUAL_TX_BAUD 1200
 #define TARGET_TX_BAUD 1000
 
-// Frequency of Tasks
-#define TELEMETRY_FREQUENCY 1000
-#define STATUS_FREQUENCY    2000
-#define F_INFO_FREQUENCY    500
-
-// settings for rolling averages
-#define BAT_AVG_ALPHA 178
-#define BAT_AVG_POWER 256
+// Task Frequency
+#define TELEMETRY_FREQUENCY 1111
+#define STATUS_FREQUENCY    2222
+#define F_INFO_FREQUENCY    250
 
 // Pin designations
 #define VSENSE_PIN A2
@@ -24,12 +26,19 @@
 TinyGPSPlus gps;
 
 // Moving Average Values
-long avgBattery    = 0;
-long avgAltitude     = 0;
-long avgAcceleration = 0;
+float avgBattery   = 0;
+float avgAltitude  = 0;
+float avgSpeed     = 0;
+float avgAccel     = 0;
+
+// Alphas
+#define BATTERY_ALPHA  0.05
+#define ALTITUDE_ALPHA 0.1
+#define SPEED_ALPHA    0.1
+#define ACCEL_ALPHA    0.1
 
 // Current Mode of flight we are in.
-// <1 = failsafe
+// <0 = failsafe
 // 0  = prep
 // 1  = powered flight
 // 2  = coast
@@ -81,198 +90,80 @@ void setup() {
 //
 byte ch;
 void loop() {
-  //If there is any new GPS information, read & process it
+  //Process GPS updates
   while (Serial1.available() > 0) {
     gps.encode(Serial1.read());
   }
 
-  //If we have received a character from ground control, process it.
+  //Process GC updates
   if (Serial.available() ) {
     ch = Serial.read();
     process_command(ch);
   }
 
-  //If we need to send a new telemetry packet, do so.
+  //Send telemetry info (If needed)
   if (millis() - lastTelemetryTX > TELEMETRY_FREQUENCY)
     telemetryTX();
 
-  //If we need to send a new status packet, do so.
+  //Send status info (If needed)
   if (millis() - lastStatusTX > STATUS_FREQUENCY)
     statusTX();
 
-  //If we need to
+  //Update flight info & mode
   if (millis() - lastInfoUpdate > F_INFO_FREQUENCY)
     update_flight_info();
 }
 
 
 //
-// Sends telemetry information
-//
-// T,44.982719,-123.337142,98.5,1.17,___
-// T = this is a telemetry packet
-//   44.982719 = Lattitude
-//             -123.337142 = Longitude
-//                         98.5 = Elevation in Meters
-//                              1.17 = Speed in Kph
-//                                   ___ = pressure
-//
-void telemetryTX() {
-  Serial.print("T,");
-
-  Serial.print(gps.location.lat(), 6);
-  Serial.print(",");
-  Serial.print(gps.location.lng(), 6);
-
-  Serial.print(",");
-  Serial.print(gps.altitude.meters());
-
-  Serial.print(",");
-  Serial.print(gps.speed.kmph());
-
-  Serial.print(",");
-  //Put pressure here?
-
-  //Finally, update last Packet variable
-  Serial.println();
-  lastTelemetryTX = millis();
-}
-
-
-//
-// Status update Packet:
-//
-// S,21594500,000000,6,165,532,2/1/0
-// S = This is a status packet
-//   21594500 = GPS time
-//            0 = Age of last ping from ground control
-//             0 = Time validity byte (0-9 = seconds since update.  X=invalid / >10 seconds)
-//              0 = Location validity byte
-//               0 = Altitude validity byte
-//                0 = Speed validity byte
-//                 0 = Course validity byte
-//                   6 = Satellites used for fix
-//                     165 = HDOP (Horrizontal dillution of precision)
-//                         532 = battery input voltage.  In centivolts (5.32v) (After diode, before everything else)
-//                             2/1/0 = 2 new packets with valid fix / 1 new packet with no fix / 0 packets with bad checksums
-//
-unsigned long timeSince;
-void statusTX() {
-  //Static Packet
-  Serial.print("S,");
-
-  //Current Time
-  Serial.print(gps.time.value());
-  Serial.print (",");
-
-  //Uplink Status
-  timeSince = millis() - lastRX;
-  if (timeSince < 10000) {
-    Serial.print( timeSince / 1000 );
-  } else {
-    Serial.print("X");
-  }
-
-  //Time Status
-  if (gps.time.isValid() && gps.time.age() < 10000) {
-    Serial.print( gps.time.age() / 1000 );
-  } else {
-    Serial.print("X");
-  }
-
-  //Location Status
-  if (gps.location.isValid() && gps.location.age() < 10000) {
-    Serial.print( gps.location.age() / 1000 );
-  } else {
-    Serial.print("X");
-  }
-
-  //Altitude Status
-  if (gps.altitude.isValid() && gps.altitude.age() < 10000) {
-    Serial.print( gps.altitude.age() / 1000 );
-  } else {
-    Serial.print("X");
-  }
-
-  //Speed Status
-  if (gps.speed.isValid() && gps.speed.age() < 10000) {
-    Serial.print( gps.speed.age() / 1000 );
-  } else {
-    Serial.print("X");
-  }
-
-  //Course Status
-  if (gps.course.isValid() && gps.course.age() < 10000) {
-    Serial.print( gps.course.age() / 1000 );
-  } else {
-    Serial.print("X");
-  }
-
-  //Number of satellites
-  Serial.print(",");
-  Serial.print(gps.satellites.value());
-
-  //Horizontal Dillution of Precision
-  Serial.print(",");
-  Serial.print(gps.hdop.value());
-
-  //Battery Volatage
-  Serial.print(",");
-  float sample = analogRead(VSENSE_PIN);
-  float voltage = (sample * 5.015) / 1024.0 * 5.7 * 100;   //5.7 = voltage divider ratio
-  Serial.print( (int) voltage );
-
-  //Number of (new) good packets with fixes
-  Serial.print(",");
-  Serial.print( (gps.sentencesWithFix() - lastWithFix) );
-
-  //Number of (new) good packets with NO fix
-  Serial.print("/");
-  Serial.print( (gps.passedChecksum() - lastGoodSum) - (gps.sentencesWithFix() - lastWithFix) );
-
-  //Number of (new) bad packets
-  Serial.print("/");
-  Serial.print( gps.failedChecksum() - lastBadSum );
-
-  //Now update the 'lasts'
-  lastGoodSum = gps.passedChecksum();
-  lastBadSum = gps.failedChecksum();
-  lastWithFix = gps.sentencesWithFix();
-
-  //Finally, update last Packet variable
-  Serial.println();
-  lastStatusTX = millis();
-}
-
-//
-// Updates all the averages for altitude & speed, flight mode, etc.
+// Updates all the averages for altitude, speed, flight mode, etc.
 //
 void update_flight_info() {
-  int alt   = gps.altitude.meters();
+  //Update altitude average
+  float tempAlt = gps.altitude.meters();  //This should use pressure?
+  oldAlt = avgAltitude;
+  avgAltitude = (avgAltitude * (1 - ALTITUDE_ALPHA)) + (tempAlt * ALTITUDE_ALPHA);
 
-  
-  int speed = gps.speed.kmph();
-  //long avgAltitude     = 0;
-  //long avgAcceleration = 0;
+  //Update speed average
+  float tempspeed = avgAltitude - oldAlt; //Or perhaps combine gps alt speed change & pressure change speed?
+  oldSpeed = avgSpeed;
+  avgSpeed = (avgSpeed * (1 - SPEED_ALPHA)) + (abs(tempspeed) * SPEED_ALPHA);
 
-  //Also check battery voltage
+  //Update acceleration average
+  float tempaccel = avgSpeed - oldSpeed;
+  avgAccel = (avgAccel * (1 - ACCEL_ALPHA)) + (avgAccel * ACCEL_ALPHA);
+
+  //Update flight mode
+  update_flight_mode();
+
+  //Update battery voltage
   float sample = analogRead(VSENSE_PIN);
-  float centivolts = (sample * 5.015) / 1024.0 * 5.7 * 100;   //5.7 = voltage divider ratio
-  avgBattery = (BAT_AVG_ALPHA * centivolts + (BAT_AVG_POWER - BAT_AVG_ALPHA) * avgBattery ) / BAT_AVG_POWER;
+  int centivolts = (sample * 5.015) / 1024.0 * 5.7 * 100;   //5.7 = voltage divider ratio
+  avgBattery = (avgBattery * (1 - BATTERY_ALPHA)) + (centivolts * BATTERY_ALPHA);
 }
 
-//
-// Processes a command from ground control.
-//
-// Valid packets:
-// P = 'ping' Keeps track of last RX from Ground Control
-//
-void process_command(byte ch) {
-  if (ch == 'P') {
-    lastRX = millis();
-  }
-  else {
-    //something went wrong?  Bad packet.
-  }
-}
+void update_flight_mode() {
+  //takeoff
+  //if acceleration > blah && mode == 0:
+    //mode = 1
 
+  //coast
+  //if acceleration < blah && mode == 1:
+    //mode = 2
+
+  //apex
+  //if speed < 0 && mode == 2:
+    //mode = 3
+
+  //drouge deployment...
+  //
+    //
+
+  //main deployment
+  //if alt < xxxx && mode > 3:
+    //mode = 5
+
+  //hit ground
+  //if speed ~0 && mode > 3:
+    //mode = 6
+}
