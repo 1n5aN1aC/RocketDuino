@@ -16,23 +16,23 @@
 //                              1.17 = Speed in Kph
 //
 void telemetryTX() {
-	Serial.print("T,");
+  Serial.print("T,");
 
-	Serial.print(gps.location.lat(), 6);
-	Serial.print(",");
-	Serial.print(gps.location.lng(), 6);
+  Serial.print(gps.location.lat(), 6);
+  Serial.print(",");
+  Serial.print(gps.location.lng(), 6);
 
-	Serial.print(",");
-	Serial.print(gps.altitude.meters());
-	//maybe use avgAltitde?
+  Serial.print(",");
+  Serial.print(gps.altitude.meters());
+  //maybe use avgAltitde?
 
-	Serial.print(",");
-	Serial.print(gps.speed.kmph());
-	//maybe use avgSpeed?
+  Serial.print(",");
+  Serial.print(gps.speed.kmph());
+  //maybe use avgSpeed?
 
-	//Finally, update last Packet variable
-	Serial.println();
-	lastTelemetryTX = millis();
+  //Finally, update last Packet variable
+  Serial.println();
+  lastTelemetryTX = millis();
 }
 
 
@@ -54,88 +54,88 @@ void telemetryTX() {
 //                             2/1/0 = 2 new (GPS) packets with valid fix / 1 new packet with no fix / 0 packets with bad checksums
 //
 void statusTX() {
-	//Static Packet
-	Serial.print("S,");
+  //Static Packet
+  Serial.print("S,");
 
-	//Current Time
-	Serial.print(gps.time.value());
-	Serial.print (",");
+  //Current Time
+  Serial.print(gps.time.value());
+  Serial.print (",");
 
-	//Uplink Status
-	unsigned long timeSince = millis() - lastRX;
-	if (timeSince < 10000) {
-		Serial.print( timeSince / 1000 );
-	} else {
-		Serial.print("X");
-	}
+  //Uplink Status
+  unsigned long timeSince = millis() - lastRX;
+  if (timeSince < 10000) {
+    Serial.print( timeSince / 1000 );
+  } else {
+    Serial.print("X");
+  }
 
-	//Time Status
-	if (gps.time.isValid() && gps.time.age() < 10000) {
-		Serial.print( gps.time.age() / 1000 );
-	} else {
-		Serial.print("X");
-	}
+  //Time Status
+  if (gps.time.isValid() && gps.time.age() < 10000) {
+    Serial.print( gps.time.age() / 1000 );
+  } else {
+    Serial.print("X");
+  }
 
-	//Location Status
-	if (gps.location.isValid() && gps.location.age() < 10000) {
-		Serial.print( gps.location.age() / 1000 );
-	} else {
-		Serial.print("X");
-	}
+  //Location Status
+  if (gps.location.isValid() && gps.location.age() < 10000) {
+    Serial.print( gps.location.age() / 1000 );
+  } else {
+    Serial.print("X");
+  }
 
-	//Altitude Status
-	if (gps.altitude.isValid() && gps.altitude.age() < 10000) {
-		Serial.print( gps.altitude.age() / 1000 );
-	} else {
-		Serial.print("X");
-	}
+  //Altitude Status
+  if (gps.altitude.isValid() && gps.altitude.age() < 10000) {
+    Serial.print( gps.altitude.age() / 1000 );
+  } else {
+    Serial.print("X");
+  }
 
-	//Speed Status
-	if (gps.speed.isValid() && gps.speed.age() < 10000) {
-		Serial.print( gps.speed.age() / 1000 );
-	} else {
-		Serial.print("X");
-	}
+  //Speed Status
+  if (gps.speed.isValid() && gps.speed.age() < 10000) {
+    Serial.print( gps.speed.age() / 1000 );
+  } else {
+    Serial.print("X");
+  }
 
-	//Course Status
-	if (gps.course.isValid() && gps.course.age() < 10000) {
-		Serial.print( gps.course.age() / 1000 );
-	} else {
-		Serial.print("X");
-	}
+  //Course Status
+  if (gps.course.isValid() && gps.course.age() < 10000) {
+    Serial.print( gps.course.age() / 1000 );
+  } else {
+    Serial.print("X");
+  }
 
-	//Number of satellites
-	Serial.print(",");
-	Serial.print(gps.satellites.value());
+  //Number of satellites
+  Serial.print(",");
+  Serial.print(gps.satellites.value());
 
-	//Horizontal Dillution of Precision
-	Serial.print(",");
-	Serial.print(gps.hdop.value());
+  //Horizontal Dillution of Precision
+  Serial.print(",");
+  Serial.print(gps.hdop.value());
 
-	//Battery Volatage
-	Serial.print(",");
-	Serial.print(avgBattery);
+  //Battery Volatage
+  Serial.print(",");
+  Serial.print(avgBattery);
 
-	//Number of (new) good packets with fixes
-	Serial.print(",");
-	Serial.print( (gps.sentencesWithFix() - lastWithFix) );
+  //Number of (new) good packets with fixes
+  Serial.print(",");
+  Serial.print( (gps.sentencesWithFix() - lastWithFix) );
 
-	//Number of (new) good packets with NO fix
-	Serial.print("/");
-	Serial.print( (gps.passedChecksum() - lastGoodSum) - (gps.sentencesWithFix() - lastWithFix) );
+  //Number of (new) good packets with NO fix
+  Serial.print("/");
+  Serial.print( (gps.passedChecksum() - lastGoodSum) - (gps.sentencesWithFix() - lastWithFix) );
 
-	//Number of (new) bad packets
-	Serial.print("/");
-	Serial.print( gps.failedChecksum() - lastBadSum );
+  //Number of (new) bad packets
+  Serial.print("/");
+  Serial.print( gps.failedChecksum() - lastBadSum );
 
-	//Now update the 'lasts'
-	lastGoodSum = gps.passedChecksum();
-	lastBadSum = gps.failedChecksum();
-	lastWithFix = gps.sentencesWithFix();
+  //Now update the 'lasts'
+  lastGoodSum = gps.passedChecksum();
+  lastBadSum = gps.failedChecksum();
+  lastWithFix = gps.sentencesWithFix();
 
-	//Finally, update last Packet variable
-	Serial.println();
-	lastStatusTX = millis();
+  //Finally, update last Packet variable
+  Serial.println();
+  lastStatusTX = millis();
 }
 
 
@@ -147,13 +147,13 @@ void statusTX() {
 // A = arm the flight controller for takeoff
 //
 void process_command(byte ch) {
-	if (ch == 'P') {
-		lastRX = millis();
-	}
-	if (ch == 'A' && currMode < 0) {
-		currMode = 0;
-	}
-	else {
-		//something went wrong? Bad packet.
-	}
+  if (ch == 'P') {
+    lastRX = millis();
+  }
+  if (ch == 'A' && currMode < 0) {
+    currMode = 0;
+  }
+  else {
+    //something went wrong?  Bad packet.
+  }
 }
