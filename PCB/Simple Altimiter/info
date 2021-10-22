@@ -1,0 +1,314 @@
+{
+  "uuid": "1ef9924dc7d174e4813f4e260f3d1bdd",
+  "path": "Offline/Simple%20Altimiter",
+  "name": "Simple Altimiter",
+  "content": "",
+  "created_at": "2021-09-13 20:39:30",
+  "updated_at": "2021-10-10 19:08:10",
+  "stick": "",
+  "documents": [
+    {
+      "uuid": "e0050dece0d1e2b9f90f0f39dcb8e6d0",
+      "title": "Sheet_1",
+      "description": "",
+      "docType": "1",
+      "master": "",
+      "thumb": "/images/thumb-default.png",
+      "components": {
+        "f942f8e244294bb7b1d0d99120824d33": 1,
+        "57fed973ff914ce994ed03d3f823ea3d": 1,
+        "9669163051044703a07eaec8582464b6": 1,
+        "3eb248026be64bd38c3a842840027124": 2,
+        "efffc24e768b4ae69d39f2edda2e269a": 4,
+        "caf662b1d5b54a77aeba7444ebab249b": 1,
+        "a39f40cff7f64fcd86eb61f5dfc0bd4f": 2,
+        "bbab01c585fe4dbcbb60ca0db50c8151": 1,
+        "3ec77201bbcd4ecd8722658d581a4e60": 3,
+        "eaa76950fd7343a1953943ee7b9978d3": 1,
+        "8cb0931e7aee4571ab281a4f2e7b6e80": 1,
+        "65b1ae295679465fabfb76c1fc7cc7e6": 1,
+        "d53f1abe4dad4eb8910d09a73f8b3662": 5,
+        "c2bceee696724f399e334309ceb2b2cd": 4
+      },
+      "BOM": [
+        [
+          "Value",
+          "Quantity",
+          "Package",
+          "Components",
+          "CustomPara"
+        ],
+        [
+          "TEST-POINT",
+          5,
+          "PAD.03X.05",
+          "A0,D0,D3,D4,D5",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "dff64ce85fb849d4bba021329b4e1073",
+            "uuid": "d53f1abe4dad4eb8910d09a73f8b3662"
+          }
+        ],
+        [
+          "BATT",
+          1,
+          "CONN-TH_2P-P5.00",
+          "BATT",
+          {
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "be1b3456245c4373bfecde52b7e1b1d6",
+            "uuid": "8cb0931e7aee4571ab281a4f2e7b6e80"
+          }
+        ],
+        [
+          "BUZZER_12MM",
+          1,
+          "BUZZER-12MM",
+          "BUZZER",
+          {
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "3ec43abf3bad492b99b78bb9d1a13cdc",
+            "uuid": "caf662b1d5b54a77aeba7444ebab249b"
+          }
+        ],
+        [
+          "470uF",
+          1,
+          "CAP-D5.0XF2.0",
+          "C1",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "4f22f638eb46492797daf7383bd865c4",
+            "uuid": "bbab01c585fe4dbcbb60ca0db50c8151"
+          }
+        ],
+        [
+          "10uF",
+          2,
+          "C1206",
+          "C2,C3",
+          {
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "b4235c9f870d443994cfe44a496e36ac",
+            "uuid": "a39f40cff7f64fcd86eb61f5dfc0bd4f"
+          }
+        ],
+        [
+          "TESTPAD100/160",
+          4,
+          "TESTPAD100/150",
+          "GPS-RX,GPS-TX,LORA-RX,LORA-TX",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "621ebe82b0eb4fd3bba12a91cce5b738",
+            "uuid": "c2bceee696724f399e334309ceb2b2cd"
+          }
+        ],
+        [
+          "CHARGE 2",
+          1,
+          "CONN-TH_2P-P5.00",
+          "H1",
+          {
+            "BOM_Supplier Part": "C49661",
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "be1b3456245c4373bfecde52b7e1b1d6",
+            "uuid": "3ec77201bbcd4ecd8722658d581a4e60"
+          }
+        ],
+        [
+          "CHARGE 1",
+          1,
+          "CONN-TH_2P-P5.00",
+          "H2",
+          {
+            "BOM_Supplier Part": "C49661",
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "be1b3456245c4373bfecde52b7e1b1d6",
+            "uuid": "3ec77201bbcd4ecd8722658d581a4e60"
+          }
+        ],
+        [
+          "GPS",
+          1,
+          "HDR-F-2.54_1X4",
+          "H3",
+          {
+            "BOM_Supplier Part": "C225501",
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "21473b495b6340c992965357d5701779",
+            "uuid": "eaa76950fd7343a1953943ee7b9978d3"
+          }
+        ],
+        [
+          "LORA",
+          1,
+          "HDR-F-2.54_1X5",
+          "H4",
+          {
+            "BOM_Supplier Part": "C50950",
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "4bb67b2ac49a4595b3ed10b792fcbebb",
+            "uuid": "65b1ae295679465fabfb76c1fc7cc7e6"
+          }
+        ],
+        [
+          "PWR",
+          1,
+          "HDR-F-2.54_1X2",
+          "PWR",
+          {
+            "BOM_Supplier Part": "C49661",
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "36b1306a115341f4b4d9407fb34974e0",
+            "uuid": "3ec77201bbcd4ecd8722658d581a4e60"
+          }
+        ],
+        [
+          "30N06L",
+          2,
+          "TO-220-3_L10.0-W4.5-P2.54-T",
+          "Q1,Q2",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "UTC",
+            "BOM_Manufacturer Part": "30N06L-TA3-T",
+            "BOM_Supplier Part": "C99961",
+            "BOM_JLCPCB Part Class": "Extended Part",
+            "puuid": "fb8b10620b5a459d9b03fd14987346f4",
+            "uuid": "3eb248026be64bd38c3a842840027124"
+          }
+        ],
+        [
+          "10kΩ",
+          2,
+          "R1206",
+          "R1,R2",
+          {
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "0610c91ea88544ecbdf889657d55abcb",
+            "uuid": "efffc24e768b4ae69d39f2edda2e269a"
+          }
+        ],
+        [
+          "220Ω",
+          2,
+          "R1206",
+          "R3,R4",
+          {
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "0610c91ea88544ecbdf889657d55abcb",
+            "uuid": "efffc24e768b4ae69d39f2edda2e269a"
+          }
+        ],
+        [
+          "WEMOS_D1_MINI_PRO4",
+          1,
+          "DIP-16_WEMOS_D1_MINI_PRO4",
+          "U1",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Supplier Part": "C2837266",
+            "BOM_Manufacturer": "null",
+            "BOM_Manufacturer Part": "Wemos_D1_mini_Pro4",
+            "BOM_JLCPCB Part Class": "Extended Part",
+            "puuid": "562d77a546a24e4f83c78207be689c00",
+            "uuid": "f942f8e244294bb7b1d0d99120824d33"
+          }
+        ],
+        [
+          "BMP280",
+          1,
+          "BME/BMP280",
+          "U2",
+          {
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "puuid": "9f22994ce8244fb7803112c2ad8cee91",
+            "uuid": "57fed973ff914ce994ed03d3f823ea3d"
+          }
+        ],
+        [
+          "L7805CV",
+          1,
+          "TO-220-3_L10.0-W4.5-P2.54-L",
+          "U3",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "STMicroelectronics",
+            "BOM_Manufacturer Part": "L7805CV",
+            "BOM_Supplier Part": "C111887",
+            "BOM_JLCPCB Part Class": "Extended Part",
+            "puuid": "948e610cffd14df79f04c73832b1409b",
+            "uuid": "9669163051044703a07eaec8582464b6"
+          }
+        ]
+      ],
+      "updateTime": 1632855416,
+      "createTime": 1631591804,
+      "histories": [],
+      "created_at": "2021-09-13 20:56:44",
+      "updated_at": "2021-09-28 11:56:56"
+    },
+    {
+      "uuid": "c8ccb870078b34b86c248faa64c46826",
+      "puuid": "1ef9924dc7d174e4813f4e260f3d1bdd",
+      "title": "PCB_Simple Altimiter",
+      "filename": "PCB_Simple Altimiter.json",
+      "description": "",
+      "docType": "3",
+      "master": "",
+      "thumb": "/images/thumb-default.png",
+      "components": {
+        "dff64ce85fb849d4bba021329b4e1073": 5,
+        "621ebe82b0eb4fd3bba12a91cce5b738": 4,
+        "be1b3456245c4373bfecde52b7e1b1d6": 3,
+        "4bb67b2ac49a4595b3ed10b792fcbebb": 1,
+        "21473b495b6340c992965357d5701779": 1,
+        "3ec43abf3bad492b99b78bb9d1a13cdc": 1,
+        "9f22994ce8244fb7803112c2ad8cee91": 1,
+        "36b1306a115341f4b4d9407fb34974e0": 1,
+        "0610c91ea88544ecbdf889657d55abcb": 4,
+        "562d77a546a24e4f83c78207be689c00": 1,
+        "948e610cffd14df79f04c73832b1409b": 1,
+        "fb8b10620b5a459d9b03fd14987346f4": 2,
+        "4f22f638eb46492797daf7383bd865c4": 1,
+        "b4235c9f870d443994cfe44a496e36ac": 2
+      },
+      "BOM": [],
+      "updateTime": 1633918090,
+      "createTime": 1631591818,
+      "histories": [],
+      "created_at": "2021-09-13 20:56:58",
+      "updated_at": "2021-10-10 19:08:10"
+    }
+  ],
+  "sort": [],
+  "title": "Simple Altimiter",
+  "foldername": "Simple Altimiter",
+  "schfilename": "Simple Altimiter.json",
+  "schfilemtime": 1632855416218
+}
