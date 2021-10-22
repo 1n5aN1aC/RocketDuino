@@ -5,49 +5,68 @@
 //
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
-#include "runningAverage.h"
 #include <Wire.h>
-#include <Adafruit_BMP085.h>
+#include <BMP280_DEV.h>
 #include <SimpleKalmanFilter.h>
 #include <TinyGPS++.h>
 
 // Version
-#define ROCKETDUINO_VERSION "0.4.0"
+#define ROCKETDUINO_VERSION "3.5.0"
 
 // Pin designations
 #define BUZZER D8
 #define CHUTE1 D7
+#define CHUTE1 D6
 
 // Barometer Variables
-#define FREQUENCY_UPDATE_BAROMETER 100
-unsigned long lastBarometerUpdate = 0;
-Adafruit_BMP085 baro; // Define barometer object. Basic I2C SCL & SDA
-SimpleKalmanFilter altitudeFiltered(1, 1, 0.01); //Measurement Uncertainty, Estimation Uncertainty, Noise
-float currentFilteredAltitude     = 0;
+BMP280_DEV bmp280; // Define barometer object. Basic I2C SCL & SDA
+SimpleKalmanFilter altitudeFilterObject(1, 1, 0.15); //Measurement Uncertainty, Estimation Uncertainty, Noise
+float    temporaryAltitude       = 0;
+float    currentFilteredAltitude = 0;
 
 // Mode variables
-#define FREQUENCY_UPDATE_MODE   250
-unsigned long lastModeUpdate    = 0;
-unsigned int currentMode        = 0;
+#define  FREQUENCY_UPDATE_MODE   250
+uint32_t lastModeUpdate          = 0;
+uint8_t  currentMode             = 0;
 
 // Buzzer Variables
-#define FREQUENCY_UPDATE_BUZZER 3000
-unsigned long lastBuzzerUpdate  = 0;
+#define  FREQUENCY_UPDATE_BUZZER 3000
+uint32_t lastBuzzerUpdate        = 0;
 
 // Serial Variables
-#define SERIALBAUDRATE           9600
-#define FREQUENCY_UPDATE_SERIAL  500
-unsigned long lastSerialUpdate   = 0;
-unsigned int serialCounter       = 0;
+#define  SERIALBAUDRATE          57600
+#define  FREQUENCY_UPDATE_SERIAL 500
+uint32_t lastSerialUpdate        = 0;
+uint8_t  serialCounter           = 0;
 
 // GPS Variables
-TinyGPSPlus gps_object;
+TinyGPSPlus   gps_object;
+TinyGPSCustom gpsStatus(gps_object, "GPGGA", 6);
+
+//We only have 537 bps to work with...
+typedef struct __attribute__((packed)) MicroPacket {
+  uint16_t currentAlt        : 16; // 0..65535 [16 bits]
+  uint8_t  currentMode       : 8;  // 0..255   [8  bits]
+};
+
+typedef struct __attribute__((packed)) MegaPacket {
+  float    latitude          ;     // float   [32 bits]
+  float    longitude         ;     // float   [32 bits]
+  uint16_t currentAlt        : 16; // 0..65535 [12 bits] (4  saved)
+  uint16_t startingAlt       : 16; // 0..65535 [8  bits] (-  saved)
+  uint16_t maxAlt            : 16; // 0..65535 [12 bits] (4  saved)
+  uint16_t gpsAlt            : 16; // 0..65535 [12 bits] (4  saved)
+  uint16_t gpsSpeedMPS       : 8;  // 0..511  [8  bits] (-  saved)
+  uint8_t  sats              : 4;  // 0..15   [4  bits] (4  saved)
+  uint8_t  currentMode       : 2;  // 0..3    [2  bits] (6  saved)
+  uint8_t  gps_mode          : 2;  // 0..3    [2  bits] (6  saved)
+};
 
 // Saved Values
-unsigned int maxAltitudeSeen    = 0;  //Highest we've been to
-unsigned int startingAltitude   = 0;  //what elevation we consider 'ground'
-unsigned int failsafeAltitude   = 100; //minimum alt we need to reach to arm
-unsigned int extraDeploymentAlt = 25; //Extra meters we have to fall below max alt before deployment (to be safe from jiggle)
+uint16_t maxAltitudeSeen    = 0;   //Highest we've been to
+uint16_t startingAltitude   = 0;   //what elevation we consider 'ground'
+uint16_t failsafeAltitude   = 100; //minimum alt we need to reach to arm
+uint8_t  extraDeploymentAlt = 25;  //Extra meters we have to fall below max alt before deployment (to be safe from jiggle)
 
 //
 // Run Initial setup Tasks
@@ -62,18 +81,12 @@ void setup() {
   
   delay(1000);
   
-	// Send version information
-  Serial.print("\n\nRocketDuino: v");
-  Serial.print(ROCKETDUINO_VERSION);
-  Serial.print(F(" & TinyGPS++ v. ")); Serial.println(TinyGPSPlus::libraryVersion());
-  Serial.println();
-  
-  //Make sure the barometer has started
-  if (!baro.begin()) {
-    Serial.println("Could not find a valid BMP085 sensor, check wiring!");
-    tone(BUZZER, 2000); // Send 2KHz sound signal...
-    while (1) {}
-  }
+  bmp280.begin(SLEEP_MODE, BMP280_I2C_ALT_ADDR);  // Default initialisation with alternative I2C address (0x76), place the BMP280 into SLEEP_MODE
+  bmp280.setPresOversampling(OVERSAMPLING_X1);    // Options are OVERSAMPLING_SKIP, _X1, _X2, _X4, _X8, _X16
+  bmp280.setTempOversampling(OVERSAMPLING_X1);    // Options are OVERSAMPLING_SKIP, _X1, _X2, _X4, _X8, _X16
+  bmp280.setIIRFilter(IIR_FILTER_OFF);            // Options are IIR_FILTER_OFF, _2, _4, _8, _16
+  bmp280.setTimeStandby(TIME_STANDBY_62MS);       // Options are TIME_STANDBY_05MS, _62MS, _125MS, _250MS, _500MS, _1000MS, 2000MS, 4000MS
+  bmp280.startNormalConversion();                 // Start BMP280 continuous conversion in NORMAL_MODE
 }
 
 //
@@ -88,25 +101,19 @@ void loop() {
   
   //Update Serial / wireless
   update_serial_send();
-
+  
   //Handle incoming gps packets
   update_serial_receive();
   
   //Update LEDs / display
   update_buzzer();
-  
-  //Cool down CPU
-  delay(1);
 }
 
 //
 // Queries the barometer for elevation (and temp), stores it, and updates the running average
 void update_barometer() {
-  if (millis() - lastBarometerUpdate > FREQUENCY_UPDATE_BAROMETER) {
-    lastBarometerUpdate = millis();
-    
-    float thisAlt = baro.readAltitude();
-    float currentFilteredAltitude = altitudeFiltered.updateEstimate(thisAlt);
+  if (bmp280.getAltitude(temporaryAltitude)) {   // Check if the measurement is complete
+    currentFilteredAltitude = altitudeFilterObject.updateEstimate(temporaryAltitude);
     
     //Update max altitude if needed
     if (currentFilteredAltitude > maxAltitudeSeen) {
@@ -131,7 +138,7 @@ void calculate_mode() {
       if (millis() > 20000) {
         startingAltitude = currentFilteredAltitude;
         currentMode = 1;
-        Serial.println("Mode 0->1");
+        //Serial.println("Mode 0->1");
       }
       return;
     }
@@ -141,7 +148,7 @@ void calculate_mode() {
       //If we are above the failsafe height, go to flight mode.
       if (currentFilteredAltitude > startingAltitude + failsafeAltitude) {
         currentMode = 2;
-        Serial.println("Mode 1->2");
+        //Serial.println("Mode 1->2");
       }
       return;
     }
@@ -155,7 +162,7 @@ void calculate_mode() {
           return;
         }
         currentMode = 3;
-        Serial.println("Mode 2->3");
+        //Serial.println("Mode 2->3");
         digitalWrite(CHUTE1, HIGH);
         delay(500);
         digitalWrite(CHUTE1, LOW);
@@ -174,36 +181,34 @@ void update_serial_send() {
   if (millis() - lastSerialUpdate > FREQUENCY_UPDATE_SERIAL) {
     lastSerialUpdate = millis();
 
+    //Simple Packet
     if (serialCounter == 0) {
-      //Simple Packet
-      Serial.print(currentMode);
-      Serial.print(',');
-      Serial.print(currentFilteredAltitude);
-      Serial.println();
+      //MicroPacket packet = {'z', currentMode, currentFilteredAltitude};
+      MicroPacket packet = {currentFilteredAltitude, currentMode};
+      Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
 
       serialCounter = 1; //next time, do advanced packet
-    } else {
-      //Advanced packet
-      Serial.print(currentMode);
-      Serial.print(',');
-      Serial.print(currentFilteredAltitude);
-      Serial.print(',');
-      Serial.print(startingAltitude);
-      Serial.print(',');
-      Serial.print(maxAltitudeSeen);
-      Serial.print(',');
-      Serial.print(gps_object.location.age()); // Do we have a fix?    //Check if is greater than some number, and use a single bit
-      Serial.print(',');
-      Serial.print(gps_object.location.lat(), 6); // Latitude in degrees (double)
-      Serial.print(',');
-      Serial.print(gps_object.location.lng(), 6); // Longitude in degrees (double)
-      Serial.print(',');
-      Serial.print(gps_object.speed.mph()); // Speed in miles per hour (double)
-      Serial.print(',');
-      Serial.print(gps_object.altitude.meters()); // Altitude in meters (double)
-      Serial.print(',');
-      Serial.print(gps_object.satellites.value()); // Number of satellites in use (u32)
-      Serial.println();
+
+      delay(100);
+      Serial.println(currentFilteredAltitude);
+      Serial.println(temporaryAltitude);
+      Serial.println(maxAltitudeSeen);
+      Serial.println(startingAltitude);
+
+    //Advanced packet
+    } else if (serialCounter == 1) {
+      //When was last gps data?  If longer than a couple seconds, override the gps info pkt:
+      //If it's not stable, then we get a custom gps parsing object...
+      uint8_t gps_mode;
+      if (gps_object.location.age() > 1500) {
+        gps_mode = 3;
+      } else {
+        gps_mode = atoi(gpsStatus.value());
+      }
+      
+      //MegaPacket packet = {'y', currentMode, gps_object.satellites.value(), gps_mode, currentFilteredAltitude, startingAltitude, maxAltitudeSeen, gps_object.altitude.meters(), gps_object.location.lat(), gps_object.location.lng(), gps_object.speed.mps()};
+      MegaPacket packet = {gps_object.location.lat(), gps_object.location.lng(), currentFilteredAltitude, startingAltitude, maxAltitudeSeen, gps_object.altitude.meters(), gps_object.speed.mps(), gps_object.satellites.value(), currentMode, gps_mode};
+      Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
 
       serialCounter = 0; //next time, do simple packet
     }
