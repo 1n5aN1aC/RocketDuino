@@ -9,7 +9,7 @@ The idea began when my friend started work on a High-Powered model rocket projec
 So....  I started working on a Custom PCB for it, and firmware / software to go along with it.
 
 ####Hardware
-Currently, it works with any Serial GPS device that outputs standards-compliant NMEA messages, (GNS, GGA, GLL) and optionally a MS5611 Barometer for more accurate real-time elevation measurement.
+Currently, it works with any Serial GPS device that outputs classic NMEA messages, (GNGGA, etc) and a BMP280 for more accurate real-time elevation measurement.
 
 Data Transmission is done with a LoRa 433/900 MHz trasmitter, but any data transmitter with a serial interface should work.
 
