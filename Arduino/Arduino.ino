@@ -9,12 +9,18 @@
 #include <SimpleKalmanFilter.h>
 #include <TinyGPS++.h>
 
+//LoRa Hardware parameters
+#define E32_TTL_1W
+#define FREQUENCY_433
+#include "LoRa_E32.h"
+
 // Pin designations
-#define BUZZER 17
-#define CHUTE1 8
-#define CHUTE2 7
-#define LED1   4
-#define LED2   3
+#define BUZZER 17 //Buzzer Pin
+#define CHUTE1 8  //Output for Chute Channel 1
+#define CHUTE2 7  //Output for Chute Channel 1
+#define LED    13 //Teensy Onboard LED
+#define LED1   4  //PCB LED 1 (Green)
+#define LED2   3  //PCD LED 2 (Yellow)
 
 
 // Barometer Variables
@@ -36,8 +42,8 @@ elapsedMillis lastBuzzerUpdate;
 // Serial Variables
 #define  LORABAUDRATE            57600
 #define  FREQUENCY_TX_LORA       350
-uint16_t telemetryPacketsSent    = 0;
 elapsedMillis lastLoraTX;
+LoRa_E32 e32ttl100(&Serial1);
 
 // GPS Variables
 TinyGPSPlus   gps_object;
@@ -49,6 +55,7 @@ elapsedMillis lastGPSReceive;
 typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes
   int16_t  currentAlt;        //2 bytes
   int16_t  maxAlt;            //2 bytes
+  int16_t  startingAlt;       //2 bytes
   uint8_t  currentMode;       //1 byte
   float    latitude;          //4 bytes
   float    longitude;         //4 bytes
@@ -58,11 +65,6 @@ typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes
   uint8_t  gps_mode;          //1 byte (only 2 bits needed)
   uint8_t  gps_recent;        //1 byte (only 1 bit needed)
 };
-
-typedef struct __attribute__((packed)) packet_ground { //Maximum 51 / 58 Bytes
-  int16_t startingAlt;        //2 bytes
-};
-
 
 // Saved Values
 int16_t  maxAltitudeSeen    = -32768;   //Highest we've been to
@@ -78,21 +80,50 @@ void setup() {
   pinMode(BUZZER, OUTPUT);
   pinMode(CHUTE1, OUTPUT);
   pinMode(CHUTE2, OUTPUT);
+  pinMode(LED,    OUTPUT);
   pinMode(LED1,   OUTPUT);
   pinMode(LED2,   OUTPUT);
+  digitalWrite(LED, HIGH);  //LED on startup
   
 	//Initialize both serial ports
+  Serial.println(57600); //USB
   Serial1.begin(LORABAUDRATE);
   Serial2.begin(GPSBAUDRATE);
+
+  delay(500); //Wait for stuff to init
+
+  //Init LoRa                                             // https://www.mischianti.org/2019/10/21/lora-e32-device-for-arduino-esp32-or-esp8266-library-part-2/
+  e32ttl100.begin();                                      // Startup all pins and UART
+  ResponseStructContainer c;                              // C stores the config
+  c = e32ttl100.getConfiguration();                       // Load config from module
+  Configuration configuration = *(Configuration*) c.data; // Make local config object
+  //configuration.ADDL = 0x0;                                           // 0x0; (def: 00H /00H-FFH) // First part of address
+  //configuration.ADDH = 0x1;                                           // 0x1; (def: 00H /00H-FFH) // Second part of address
+  configuration.CHAN = 0x17;                                            // Communication channel (def 17H == 23d == 433MHz / 410 M + CHAN*1M)
+  configuration.OPTION.fec = FEC_1_ON;                                  // Forward Error Correction?
+  configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION; // Broadcast transmissions
+  configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;     // Enable pull-ups on serial
+  configuration.OPTION.transmissionPower = POWER_21;                    // dBm transmission power (POWER_30 POWER_27 POWER_24 POWER_21)
+  configuration.OPTION.wirelessWakeupTime = WAKE_UP_250;                // Wait time for wake up
+  configuration.SPED.airDataRate = AIR_DATA_RATE_010_24;                // Air data rate (2.4k)
+  configuration.SPED.uartBaudRate = UART_BPS_57600;                     // Communication baud rate - 9600bps (default)
+  configuration.SPED.uartParity = MODE_00_8N1;                          // Serial UART Parity
+
+  e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_SAVE); // Save config permanently
+  c.close();                                                         // Must close after opening
   
-  delay(1000);
-  
+  delay(500); //Wait for stuff to init
+
+  //Init BMP
   bmp280.begin(SLEEP_MODE, BMP280_I2C_ALT_ADDR);  // Default initialisation with alternative I2C address (0x76), place the BMP280 into SLEEP_MODE
   bmp280.setPresOversampling(OVERSAMPLING_X2);    // Options are OVERSAMPLING_SKIP, _X1, _X2, _X4, _X8, _X16
   bmp280.setTempOversampling(OVERSAMPLING_X1);    // Options are OVERSAMPLING_SKIP, _X1, _X2, _X4, _X8, _X16
   bmp280.setIIRFilter(IIR_FILTER_OFF);            // Options are IIR_FILTER_OFF, _2, _4, _8, _16
   bmp280.setTimeStandby(TIME_STANDBY_62MS);       // Options are TIME_STANDBY_05MS, _62MS, _125MS, _250MS, _500MS, _1000MS, 2000MS, 4000MS
   bmp280.startNormalConversion();                 // Start BMP280 continuous conversion in NORMAL_MODE
+
+  delay(500); //Wait for stuff to init
+  digitalWrite(LED, LOW);  //LED off as startup finished
 }
 
 //
@@ -108,18 +139,18 @@ void loop() {
   //Update Serial / wireless
   update_lora_send();
   
-  //Handle incoming gps packets
+  //Handle incoming gps data
   update_gps_receive();
 
   //Handle incoming lora packets
   update_lora_receive();
   
-  //Update LEDs / display
+  //Update buzzer / LEDs
   update_buzzer();
 }
 
 //
-// Queries the barometer for elevation (and temp), stores it, and updates the running average
+// Queries the barometer for elevation, stores it, and updates the running average
 void update_barometer() {
   if (bmp280.getAltitude(temporaryAltitude)) {   // Check if the measurement is complete
     currentFilteredAltitude = altitudeFilterObject.updateEstimate(temporaryAltitude);
@@ -150,7 +181,8 @@ void calculate_mode() {
       if (millis() > 30000) {
         startingAltitude = currentFilteredAltitude;
         currentMode = 1;
-        //Serial.println("Mode 0->1");
+        Serial.println("Mode 0->1");
+        digitalWrite(LED, LOW); //Onboard LED
       }
       //Also, if we haven't read the barometer recently, abort:
       if (millis() > 5000 && lastBarometerRead > 1000) {
@@ -165,7 +197,7 @@ void calculate_mode() {
       //If we are above the failsafe height, go to flight mode.
       if (currentFilteredAltitude > startingAltitude + failsafeAltitude) {
         currentMode = 2;
-        //Serial.println("Mode 1->2");
+        Serial.println("Mode 1->2");
       }
       return;
     }
@@ -179,7 +211,7 @@ void calculate_mode() {
           return;
         }
         currentMode = 3;
-        //Serial.println("Mode 2->3");
+        Serial.println("Mode 2->3");
         digitalWrite(CHUTE1, HIGH);
         digitalWrite(CHUTE2, HIGH);
         delay(500);
@@ -210,27 +242,49 @@ void update_gps_receive() {
   }
 }
 
+// Buzzes depending on current mode
+// Updates GPSmode led
+// Updates flight mode LED
 void update_buzzer() {
   if (lastBuzzerUpdate > FREQUENCY_UPDATE_BUZZER) {
+    //Update buzzer
     lastBuzzerUpdate = lastBuzzerUpdate - FREQUENCY_UPDATE_BUZZER;
     if (currentMode == 0) {
-      tone(BUZZER, 2000);  // Send 2KHz sound signal...
-      delay(75);          // ...for 75ms
-      noTone(BUZZER);      // Stop sound...
-      delay(50);
-      tone(BUZZER, 4000);  // Send 4KHz sound signal...
-      delay(75);          // ...for 75ms
-      noTone(BUZZER);      // Stop sound...
-      delay(50);
-      tone(BUZZER, 2000, 25);  // Send 2KHz sound signal for 75ms
+      digitalWrite(LED1, HIGH); // Status LED on for duration
+      tone(BUZZER, 2000, 75);   // Send 2KHz sound signal for 75ms
+      delay(125);
+      tone(BUZZER, 4000, 75);   // Send 4KHz sound signal for 75ms
+      delay(125);
+      tone(BUZZER, 2000, 25);   // Send 2KHz sound signal for 25ms
+      digitalWrite(LED1, LOW);
     } else if (currentMode == 1) {
-      tone(BUZZER, 4000, 25);  // Send 4KHz sound signal for 25ms
+      digitalWrite(LED1, HIGH); // Status LED on
+      tone(BUZZER, 4000, 25);   // Send 4KHz sound signal for 25ms
     } else if (currentMode == 3) {
-      tone(BUZZER, 4000);  // Send 4KHz sound signal...
-      delay(100);          // ...for 100ms
-      noTone(BUZZER);      // Stop sound...
-      delay(100);
-      tone(BUZZER, 4000, 100);  // Send 4KHz sound signafor 100ms
+      digitalWrite(LED1, LOW);  // Status LED off
+      tone(BUZZER, 4000, 100);  // Send 4KHz sound signal for 100ms
+      delay(200);
+      tone(BUZZER, 4000, 100);  // Send 4KHz sound signal for 100ms
+    }
+
+    //Update GPSmode LED
+    uint8_t gps_mode;
+    if (gps_object.location.age() > 1500) {
+      gps_mode = 0;
+    } else {
+      gps_mode = atoi(gpsStatus.value());
+    }
+    if (gps_mode == 2) {        //DGPS
+      digitalWrite(LED2, HIGH);
+    } else if (gps_mode == 1) { //2D-3D Fix
+      bool current = digitalRead(LED2);
+      if (current) {
+        digitalWrite(LED2, LOW);
+      } else {
+        digitalWrite(LED2, HIGH);
+      }
+    } else {                    //No fix
+      digitalWrite(LED2, LOW);
     }
   }
 }
@@ -245,14 +299,7 @@ void update_lora_send() {
   if (lastLoraTX > FREQUENCY_TX_LORA) {
     lastLoraTX = lastLoraTX - FREQUENCY_TX_LORA;
 
-    if (telemetryPacketsSent % 5 == 0) {
-      send_packet_ground();
-    } else {
-      send_packet_normal();
-    }
-
-    //Increment counter for next time
-    telemetryPacketsSent++;
+    send_packet_normal();
   }
 }
 
@@ -271,11 +318,6 @@ void send_packet_normal() {
     gps_recent = 1;
   }
   
-  packet_normal packet = {static_cast<int16_t>(currentFilteredAltitude), maxAltitudeSeen, currentMode, gps_object.location.lat(), gps_object.location.lng(), gps_object.altitude.meters(), gps_object.speed.mps(), gps_object.satellites.value(), gps_mode, gps_recent};
-  Serial1.write(reinterpret_cast<char*>(&packet), sizeof packet);
-}
-
-void send_packet_ground() {
-  packet_ground packet = {startingAltitude};
+  packet_normal packet = {static_cast<int16_t>(currentFilteredAltitude), maxAltitudeSeen, startingAltitude, currentMode, gps_object.location.lat(), gps_object.location.lng(), gps_object.altitude.meters(), gps_object.speed.mps(), gps_object.satellites.value(), gps_mode, gps_recent};
   Serial1.write(reinterpret_cast<char*>(&packet), sizeof packet);
 }
