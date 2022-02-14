@@ -4,7 +4,7 @@
   "name": "Simple Altimiter",
   "content": "",
   "created_at": "2021-09-13 20:39:30",
-  "updated_at": "2021-10-22 14:40:08",
+  "updated_at": "2022-02-12 14:27:46",
   "stick": "",
   "documents": [
     {
@@ -15,17 +15,17 @@
       "master": "",
       "thumb": "/images/thumb-default.png",
       "components": {
-        "3eb248026be64bd38c3a842840027124": 2,
-        "efffc24e768b4ae69d39f2edda2e269a": 6,
-        "a39f40cff7f64fcd86eb61f5dfc0bd4f": 3,
-        "3ec77201bbcd4ecd8722658d581a4e60": 2,
+        "a39f40cff7f64fcd86eb61f5dfc0bd4f": 4,
         "4d6cb0e45fec43bba02ed4a104c82a21": 1,
         "9669163051044703a07eaec8582464b6": 1,
         "1dddcdc7cdef45bd95fc2f68bae22fab": 1,
         "bbab01c585fe4dbcbb60ca0db50c8151": 1,
         "07c46e03321d4e678cef4f8578f5e507": 1,
         "a68dc5e6a9944c46b7604648a43dcd65": 1,
-        "b4666fa29fc04339ba96a74150d6333e": 2
+        "efffc24e768b4ae69d39f2edda2e269a": 6,
+        "b4666fa29fc04339ba96a74150d6333e": 2,
+        "731e46b9ff3e4031a8f401267887fd3e": 2,
+        "3ec77201bbcd4ecd8722658d581a4e60": 2
       },
       "BOM": [
         [
@@ -52,14 +52,14 @@
         [
           "BMP280",
           1,
-          "BMP280",
+          "BMP280 BREAKOUT (SMD)",
           "BMP",
           {
             "BOM_Manufacturer": "",
             "BOM_Manufacturer Part": "",
             "BOM_Supplier Part": "",
             "BOM_Supplier": "",
-            "puuid": "17e0f1fd280140bdbcaa4b55e93a08cc",
+            "puuid": "8743b5a335fd4426a5cc1a9fa480a61b",
             "uuid": "1dddcdc7cdef45bd95fc2f68bae22fab"
           }
         ],
@@ -90,9 +90,9 @@
         ],
         [
           "10uF",
-          3,
+          4,
           "C1206",
-          "C2,C3,C6",
+          "C2,C3,C4,C6",
           {
             "BOM_Supplier Part": "",
             "BOM_Supplier": "",
@@ -113,7 +113,7 @@
           }
         ],
         [
-          "CHARGE 2",
+          "CHARGE 1",
           1,
           "CONN-TH_2P-P5.00",
           "H1",
@@ -127,7 +127,7 @@
           }
         ],
         [
-          "CHARGE 1",
+          "CHARGE 2",
           1,
           "CONN-TH_2P-P5.00",
           "H2",
@@ -191,23 +191,36 @@
         [
           "30N06L",
           2,
-          "TO-220-3_L10.0-W4.5-P2.54-T",
+          "TO-220AB-3_L10.3-W5.0-P2.54-L",
           "Q1,Q2",
           {
             "BOM_Supplier": "LCSC",
-            "BOM_Manufacturer": "UTC",
-            "BOM_Manufacturer Part": "30N06L-TA3-T",
-            "BOM_Supplier Part": "C99961",
+            "BOM_Supplier Part": "C878826",
+            "BOM_Manufacturer": "VBsemi Elec",
+            "BOM_Manufacturer Part": "FQP30N06L",
             "BOM_JLCPCB Part Class": "Extended Part",
-            "puuid": "fb8b10620b5a459d9b03fd14987346f4",
-            "uuid": "3eb248026be64bd38c3a842840027124"
+            "puuid": "7554c900cea44d12a1ab4141c58eee9e",
+            "uuid": "731e46b9ff3e4031a8f401267887fd3e"
+          }
+        ],
+        [
+          "220Ω",
+          2,
+          "R1206",
+          "R1,R14",
+          {
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "BOM_Manufacturer Part": "",
+            "puuid": "0610c91ea88544ecbdf889657d55abcb",
+            "uuid": "efffc24e768b4ae69d39f2edda2e269a"
           }
         ],
         [
           "10kΩ",
           2,
           "R1206",
-          "R1,R2",
+          "R2,R3",
           {
             "BOM_Supplier Part": "",
             "BOM_Supplier": "",
@@ -217,23 +230,10 @@
           }
         ],
         [
-          "220Ω",
-          3,
+          "330Ω",
+          2,
           "R1206",
-          "R3,R4,R5",
-          {
-            "BOM_Supplier Part": "",
-            "BOM_Supplier": "",
-            "BOM_Manufacturer Part": "",
-            "puuid": "0610c91ea88544ecbdf889657d55abcb",
-            "uuid": "efffc24e768b4ae69d39f2edda2e269a"
-          }
-        ],
-        [
-          "150Ω",
-          1,
-          "R1206",
-          "R6",
+          "R5,R6",
           {
             "BOM_Supplier Part": "",
             "BOM_Supplier": "",
@@ -256,11 +256,11 @@
           }
         ]
       ],
-      "updateTime": 1634938784,
+      "updateTime": 1641165194,
       "createTime": 1631591804,
       "histories": [],
       "created_at": "2021-09-13 20:56:44",
-      "updated_at": "2021-10-22 14:39:44"
+      "updated_at": "2022-01-02 15:13:14"
     },
     {
       "uuid": "c8ccb870078b34b86c248faa64c46826",
@@ -272,31 +272,31 @@
       "master": "",
       "thumb": "/images/thumb-default.png",
       "components": {
+        "8743b5a335fd4426a5cc1a9fa480a61b": 1,
         "0610c91ea88544ecbdf889657d55abcb": 6,
-        "17e0f1fd280140bdbcaa4b55e93a08cc": 1,
         "c462326cdc734014b150daf1914b78cd": 1,
         "948e610cffd14df79f04c73832b1409b": 1,
-        "b4235c9f870d443994cfe44a496e36ac": 3,
+        "b4235c9f870d443994cfe44a496e36ac": 4,
+        "be1b3456245c4373bfecde52b7e1b1d6": 2,
+        "7554c900cea44d12a1ab4141c58eee9e": 2,
         "be1bd4f5c47046e89dbbafc192af2b8c": 2,
         "9f77654394344f25b3de138e0fe05ff6": 1,
         "0e4e6e3da02f4981b3fd7690759058eb": 1,
-        "fb8b10620b5a459d9b03fd14987346f4": 2,
         "48a0cbf813324f65a54e882a57ce94a4": 1,
-        "be1b3456245c4373bfecde52b7e1b1d6": 2,
         "3b21ba98d1ac4396b851929fad45c258": 1,
         "4f22f638eb46492797daf7383bd865c4": 1
       },
       "BOM": [],
-      "updateTime": 1634938808,
+      "updateTime": 1644704866,
       "createTime": 1631591818,
       "histories": [],
       "created_at": "2021-09-13 20:56:58",
-      "updated_at": "2021-10-22 14:40:08"
+      "updated_at": "2022-02-12 14:27:46"
     }
   ],
   "sort": [],
   "title": "Simple Altimiter",
   "foldername": "Simple Altimiter",
   "schfilename": "Simple Altimiter.json",
-  "schfilemtime": 1634938784517
+  "schfilemtime": 1641165194163
 }
