@@ -158,29 +158,131 @@ void setup_LoRa() {
   ResponseStructContainer c;                                     // C stores the config
   c = e32ttl100.getConfiguration();                              // Load config from module
   Configuration configuration = *(Configuration*) c.data;        // Make local config object
-  //configuration.ADDL = 0x0;                                           // 0x0; (def: 00H /00H-FFH) // First part of address
-  //configuration.ADDH = 0x1;                                           // 0x1; (def: 00H /00H-FFH) // Second part of address
-  configuration.CHAN = 0x17;                                            // Communication channel (def 17H == 23d == 433MHz / 410 M + CHAN*1M)
-  configuration.OPTION.fec = FEC_1_ON;                                  // Forward Error Correction?
-  configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION; // Broadcast transmissions
-  configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;     // Enable pull-ups on serial
-  configuration.OPTION.transmissionPower = POWER_21;                    // dBm transmission power (POWER_30 POWER_27 POWER_24 POWER_21)
-  configuration.OPTION.wirelessWakeupTime = WAKE_UP_250;                // Wait time for wake up
-  configuration.SPED.airDataRate = AIR_DATA_RATE_010_24;                // Air data rate (2.4k)
-  configuration.SPED.uartBaudRate = UART_BPS_57600;                     // Communication baud rate - 9600bps (default)
-  configuration.SPED.uartParity = MODE_00_8N1;                          // Serial UART Parity
+  int numChanges = 0;
 
-  Serial.println(F("[LoRa] (Config) Setting new config..."));
-  e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_SAVE); // Save config permanently
+  //Communication channel (def 17H == 23d == 433MHz / 410 M + CHAN*1M)
+  Serial.print(F("[LoRa] (Config) Communication channel: "));
+  Serial.print(configuration.CHAN, HEX);
+  Serial.print(F(" Wants: "));
+  Serial.print(0x17, HEX);
+  if (configuration.CHAN != 0x17) {
+    configuration.CHAN = 0x17;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Forward Error Correction
+  Serial.print(F("[LoRa] (Config) FEC: "));
+  Serial.print(configuration.OPTION.fec);
+  Serial.print(F(" Wants: "));
+  Serial.print(FEC_1_ON);
+  if (configuration.OPTION.fec != FEC_1_ON) {
+    configuration.OPTION.fec = FEC_1_ON;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Broadcast/directed setting
+  Serial.print(F("[LoRa] (Config) Direct/Broadcast: "));
+  Serial.print(configuration.OPTION.fixedTransmission);
+  Serial.print(F(" Wants: "));
+  Serial.print(FT_TRANSPARENT_TRANSMISSION);
+  if (configuration.OPTION.fixedTransmission != FT_TRANSPARENT_TRANSMISSION) {
+    configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Pull ups enabled or not
+  Serial.print(F("[LoRa] (Config) Pull-ups: "));
+  Serial.print(configuration.OPTION.ioDriveMode);
+  Serial.print(F(" Wants: "));
+  Serial.print(IO_D_MODE_PUSH_PULLS_PULL_UPS);
+  if (configuration.OPTION.ioDriveMode != IO_D_MODE_PUSH_PULLS_PULL_UPS) {
+    configuration.OPTION.ioDriveMode = IO_D_MODE_PUSH_PULLS_PULL_UPS;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //dBm transmission power (POWER_30 POWER_27 POWER_24 POWER_21)
+  Serial.print(F("[LoRa] (Config) TX Power: "));
+  Serial.print(configuration.OPTION.transmissionPower);
+  Serial.print(F(" Wants: "));
+  Serial.print(POWER_21);
+  if (configuration.OPTION.transmissionPower != POWER_21) {
+    configuration.OPTION.transmissionPower = POWER_21;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Wait time for wake up
+  Serial.print(F("[LoRa] (Config) Wake time: "));
+  Serial.print(configuration.OPTION.wirelessWakeupTime);
+  Serial.print(F(" Wants: "));
+  Serial.print(WAKE_UP_250);
+  if (configuration.OPTION.wirelessWakeupTime != WAKE_UP_250) {
+    configuration.OPTION.wirelessWakeupTime = WAKE_UP_250;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Air data rate (2.4k)
+  Serial.print(F("[LoRa] (Config) Air data rate: "));
+  Serial.print(configuration.SPED.airDataRate);
+  Serial.print(F(" Wants: "));
+  Serial.print(AIR_DATA_RATE_010_24);
+  if (configuration.SPED.airDataRate != AIR_DATA_RATE_010_24) {
+    configuration.SPED.airDataRate = AIR_DATA_RATE_010_24;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Serial baud rate
+  Serial.print(F("[LoRa] (Config) Serial Baud: "));
+  Serial.print(configuration.SPED.uartBaudRate);
+  Serial.print(F(" Wants: "));
+  Serial.print(UART_BPS_57600);
+  if (configuration.SPED.uartBaudRate != UART_BPS_57600) {
+    configuration.SPED.uartBaudRate = UART_BPS_57600;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Serial UART Parity
+  Serial.print(F("[LoRa] (Config) Serial Parity: "));
+  Serial.print(configuration.SPED.uartParity);
+  Serial.print(F(" Wants: "));
+  Serial.print(MODE_00_8N1);
+  if (configuration.SPED.uartParity != MODE_00_8N1) {
+    configuration.SPED.uartParity = MODE_00_8N1;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  if (numChanges > 0) {
+    Serial.println(F("[LoRa] (Config) Setting new config..."));
+    e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_SAVE); // Save config permanently
+    delay(500); //Wait for stuff to save and such
+  } else {
+    Serial.println(F("[LoRa] (Config) No config changes to save..."));
+  }
   c.close();                                                         // Must close after opening
-  delay(500); //Wait for stuff to save and such
 
   //Switch to normal mode
   digitalWrite(LORAM0, LOW);  //Set Lora to normal mode
   digitalWrite(LORAM1, LOW);  //Set Lora to normal mode
   Serial.println(F("[LoRa] (Config) Switching to normal mode..."));
 
-  delay(300); //Wait for stuff to init
+  delay(500); //Wait for stuff to init
   Serial.println(F("[LoRa] (Config) Complete."));
 }
 
