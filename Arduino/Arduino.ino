@@ -4,6 +4,7 @@
 // Purpose: Handles all logic for the RocketDuino
 //
 // TODO:
+// 0. Increase transmission power to maximum.  (is min right now)
 // 1. mode for Serial Passthrough to GPS.  (To upload sat info, etc.)
 // 2. Send transmitted data via local serial as well.  (For wire transmission)
 //
@@ -51,7 +52,7 @@ elapsedMillis lastBuzzerUpdate;
 
 // Serial Variables
 #define  LORABAUDRATE            57600
-#define  FREQUENCY_TX_LORA       350
+#define  FREQUENCY_TX_LORA       1000
 elapsedMillis lastLoraTX;
 LoRa_E32 e32ttl100(LORARX, LORATX);
 
@@ -59,8 +60,8 @@ LoRa_E32 e32ttl100(LORARX, LORATX);
 TinyGPSPlus   gps;
 TinyGPSCustom gpsStatus(gps, "GPGGA", 6);
 #define  GPSBAUDRATE             115200
-unsigned char extraSerialBuffer  [500];   //extra memory to dedocate to gps rx
-int sizeOfExtraSerialBuffer      = 500;
+unsigned char extraSerialBuffer  [300];   //extra memory to dedocate to gps rx
+int sizeOfExtraSerialBuffer      = 300;
 bool     GPSforward              = false;
 elapsedMillis lastGPSReceive;
 
@@ -69,13 +70,14 @@ typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes  
   int16_t  maxAlt;            //2 bytes
   int16_t  startingAlt;       //2 bytes
   uint8_t  currentMode;       //1 byte
-  float    latitude;          //4 bytes
-  float    longitude;         //4 bytes
+  double   latitude;          //8 bytes
+  double   longitude;         //8 bytes
   uint16_t gpsAlt;            //2 bytes
   uint16_t gpsSpeedMPS;       //2 bytes
-  uint8_t  sats;              //1 byte
+  uint8_t  gpsSats;           //1 byte
+  uint16_t gpsHDOP;           //2 bytes
   uint8_t  gps_mode;          //1 byte (only 2 bits needed)
-  uint8_t  gps_recent;        //1 byte (only 1 bit needed)
+  uint8_t  gps_valid;         //1 byte (only 1 bit needed)
 };
 
 // Init Values
@@ -106,7 +108,7 @@ void setup() {
   //Init GPS serial port
   Serial1.begin(GPSBAUDRATE);
   Serial.println(F("[SER]  (GPS)    Gps serial began.") + String(GPSBAUDRATE) + ")");
-  //We have to dedicate extra memory to the GPS receive buffer:
+  //We need to dedicate extra memory to the GPS receive buffer:
   Serial1.addMemoryForRead(extraSerialBuffer, sizeOfExtraSerialBuffer);
 
   //Init lora transmitter
@@ -127,8 +129,8 @@ void setup() {
 }
 
 void setup_LoRa() {
-  //Serial1.begin(LORABAUDRATE);
-  //Serial.println("LORA Serial Started" + String(LORABAUDRATE) + ")");
+  Serial2.begin(LORABAUDRATE);
+  Serial.println("LORA Serial Started" + String(LORABAUDRATE) + ")");
 
   delay(100); //Wait for stuff to init
   Serial.println(F("[LoRa] (Config) Begin."));
@@ -268,6 +270,30 @@ void setup_LoRa() {
   }
   Serial.println();
 
+  //Address(high)
+  Serial.print(F("[LoRa] (Config) Address (high): "));
+  Serial.print(configuration.ADDH);
+  Serial.print(F(" Wants: "));
+  Serial.print(13);
+  if (configuration.ADDH != 13) {
+    configuration.ADDH = 13;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
+  //Address(low)
+  Serial.print(F("[LoRa] (Config) Address (low): "));
+  Serial.print(configuration.ADDL);
+  Serial.print(F(" Wants: "));
+  Serial.print(13);
+  if (configuration.ADDL != 13) {
+    configuration.ADDL = 13;
+    numChanges++;
+    Serial.print(F(" OPTION UPDATED."));
+  }
+  Serial.println();
+
   if (numChanges > 0) {
     Serial.println(F("[LoRa] (Config) Setting new config..."));
     e32ttl100.setConfiguration(configuration, WRITE_CFG_PWR_DWN_SAVE); // Save config permanently
@@ -277,10 +303,10 @@ void setup_LoRa() {
   }
   c.close();                                                         // Must close after opening
 
-  //Switch to normal mode
+  //Switch out of config mode
   digitalWrite(LORAM0, LOW);  //Set Lora to normal mode
   digitalWrite(LORAM1, LOW);  //Set Lora to normal mode
-  Serial.println(F("[LoRa] (Config) Switching to normal mode..."));
+  Serial.println(F("[LoRa] (Config) Switching out of config mode..."));
 
   delay(500); //Wait for stuff to init
   Serial.println(F("[LoRa] (Config) Complete."));
@@ -460,44 +486,45 @@ void update_lora_send() {
 }
 
 void send_packet_normal() {
-  //When was last gps data?  If it was valid, but longer than a couple seconds ago, override the gps info pkt:
-  uint8_t gps_mode;
-  if (atoi(gpsStatus.value()) != 0 && gps.location.age() > 1500) {
-    gps_mode = 3;
-  } else {
-    gps_mode = atoi(gpsStatus.value());
-  }
-
   //When was the last time we got GPS packets?
-  uint8_t gps_recent = 0;
-  if (lastGPSReceive < 1000) {
-    gps_recent = 1;
+  uint8_t gps_valid = 0;
+  if (gps.altitude.age() > 1050) {
+    gps_valid += 1;    //TinyGPS++ says it was updated within last second.
+  } 
+  if (lastGPSReceive > 1000) {
+    gps_valid += 2;
+  }
+  if (!gps.altitude.isValid()) {
+    gps_valid += 4;
   }
 
-  Serial.print(F("[DEBUG] "));
-  Serial.print(static_cast<int16_t>(currentFilteredAltitude));
-    Serial.print(",");
-  Serial.print(maxAltitudeSeen);
-    Serial.print(",");
-  Serial.print(startingAltitude);
-    Serial.print(",");
-  Serial.print(currentMode);
-    Serial.print(",");
-  Serial.print(gps.location.lat());
-    Serial.print(",");
-  Serial.print(gps.location.lng());
-    Serial.print(",");
-  Serial.print(gps.altitude.meters());
-    Serial.print(",");
-  Serial.print(gps.speed.mps());
-    Serial.print(",");
-  Serial.print(gps.satellites.value());
-    Serial.print(",");
-  Serial.print(gps_mode);
-    Serial.print(",");
-  Serial.print(gps_recent);
-  Serial.println();
+//  Serial.print(F("[DEBUG] "));
+//  Serial.print(static_cast<int16_t>(currentFilteredAltitude));
+//    Serial.print(",");
+//  Serial.print(maxAltitudeSeen);
+//    Serial.print(",");
+//  Serial.print(startingAltitude);
+//    Serial.print(",");
+//  Serial.print(currentMode);
+//    Serial.print(",");
+//  Serial.print(gps.location.lat());
+//    Serial.print(",");
+//  Serial.print(gps.location.lng());
+//    Serial.print(",");
+//  Serial.print(gps.altitude.meters());
+//    Serial.print(",");
+//  Serial.print(gps.speed.mps());
+//    Serial.print(",");
+//  Serial.print(gps.satellites.value());
+//    Serial.print(",");
+//  Serial.print(static_cast<int16_t>(gps.hdop.value()));
+//    Serial.print(",");
+//  Serial.print(gpsStatus.value());
+//    Serial.print(",");
+//  Serial.print(gps_valid);
+//  Serial.println();
   
-  packet_normal packet = {static_cast<int16_t>(currentFilteredAltitude), maxAltitudeSeen, startingAltitude, currentMode, gps.location.lat(), gps.location.lng(), gps.altitude.meters(), gps.speed.mps(), gps.satellites.value(), gps_mode, gps_recent};
-  //Serial2.write(reinterpret_cast<char*>(&packet), sizeof packet);
+  packet_normal packet = {static_cast<int16_t>(currentFilteredAltitude), maxAltitudeSeen, startingAltitude, currentMode, gps.location.lat(), gps.location.lng(), gps.altitude.meters(), gps.speed.mps(), gps.satellites.value(), static_cast<int16_t>(gps.hdop.value()), gpsStatus.value(), gps_valid};
+  Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
+  Serial2.write(reinterpret_cast<char*>(&packet), sizeof packet);
 }
