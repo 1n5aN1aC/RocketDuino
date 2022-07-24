@@ -5,7 +5,7 @@
 //
 // TODO:
 // 0. Increase transmission power to maximum.  (is min right now)
-// 1. mode for Serial Passthrough to GPS.  (To upload sat info, etc.)
+// 1. Mode for Serial Passthrough to GPS.  (To upload sat info, etc.)
 // 2. Send transmitted data via local serial as well.  (For wire transmission)
 //
 
@@ -27,10 +27,11 @@
 #define LED    13 //Teensy Onboard LED
 #define LED1   4  //PCB LED 1 (Green)
 #define LED2   3  //PCD LED 2 (Yellow)
-#define LORARX 9  //Lora_RX
-#define LORATX 10 //Lora_TX
-#define LORAM0 12 //Lora_M0 (Mode Set)
-#define LORAM1 11 //Lora_M1 (Mode Set)
+#define LORARX 9  //Lora_RX  (E32TX)
+#define LORATX 10 //Lora_TX  (E32RX)
+#define LORAUX 8  //Lora_AUX (Status)
+#define LORAM0 12 //Lora_M0  (Mode Set)
+#define LORAM1 11 //Lora_M1  (Mode Set)
 //GPS  = Serial1
 //Lora = Serial2
 
@@ -51,10 +52,9 @@ elapsedMillis lastModeUpdate;
 elapsedMillis lastBuzzerUpdate;
 
 // Serial Variables
-#define  LORABAUDRATE            57600
 #define  FREQUENCY_TX_LORA       1000
 elapsedMillis lastLoraTX;
-LoRa_E32 e32ttl100(LORARX, LORATX);
+LoRa_E32 e32ttl100(LORARX, LORATX, LORAUX, LORAM0, LORAM1, UART_BPS_RATE_9600);
 
 // GPS Variables
 TinyGPSPlus   gps;
@@ -129,22 +129,13 @@ void setup() {
 }
 
 void setup_LoRa() {
-  Serial2.begin(LORABAUDRATE);
-  Serial.println("LORA Serial Started" + String(LORABAUDRATE) + ")");
-
-  delay(100); //Wait for stuff to init
-  Serial.println(F("[LoRa] (Config) Begin."));
-
-  //Set module to config mode
-  Serial.println(F("[LoRa] (Config) Switching to config mode..."));
-  digitalWrite(LORAM0, HIGH);  //Set Lora to config mode
-  digitalWrite(LORAM1, HIGH);  //Set Lora to config mode
-  delay(250);
+  //Serial2.begin(LORABAUDRATE);
+  //Serial.println("LORA Serial Started" + String(LORABAUDRATE) + ")");
 
   //Connect to module
   Serial.println(F("[LoRa] (Config) Connecting to module..."));  // https://www.mischianti.org/2019/10/21/lora-e32-device-for-arduino-esp32-or-esp8266-library-part-2/
   e32ttl100.begin();                                             // Startup all pins and UART
-  delay(300);
+  delay(200);
 
   //Fetch LoRa module information
   ResponseStructContainer cMi;
@@ -187,12 +178,12 @@ void setup_LoRa() {
   Serial.println();
 
   //Broadcast/directed setting
-  Serial.print(F("[LoRa] (Config) Direct/Broadcast: "));
+  Serial.print(F("[LoRa] (Config) Fixed/Transparent: "));
   Serial.print(configuration.OPTION.fixedTransmission);
   Serial.print(F(" Wants: "));
-  Serial.print(FT_TRANSPARENT_TRANSMISSION);
-  if (configuration.OPTION.fixedTransmission != FT_TRANSPARENT_TRANSMISSION) {
-    configuration.OPTION.fixedTransmission = FT_TRANSPARENT_TRANSMISSION;
+  Serial.print(FT_FIXED_TRANSMISSION);
+  if (configuration.OPTION.fixedTransmission != FT_FIXED_TRANSMISSION) {
+    configuration.OPTION.fixedTransmission = FT_FIXED_TRANSMISSION;
     numChanges++;
     Serial.print(F(" OPTION UPDATED."));
   }
@@ -250,9 +241,9 @@ void setup_LoRa() {
   Serial.print(F("[LoRa] (Config) Serial Baud: "));
   Serial.print(configuration.SPED.uartBaudRate);
   Serial.print(F(" Wants: "));
-  Serial.print(UART_BPS_57600);
-  if (configuration.SPED.uartBaudRate != UART_BPS_57600) {
-    configuration.SPED.uartBaudRate = UART_BPS_57600;
+  Serial.print(UART_BPS_9600);
+  if (configuration.SPED.uartBaudRate != UART_BPS_9600) {
+    configuration.SPED.uartBaudRate = UART_BPS_9600;
     numChanges++;
     Serial.print(F(" OPTION UPDATED."));
   }
@@ -303,12 +294,7 @@ void setup_LoRa() {
   }
   c.close();                                                         // Must close after opening
 
-  //Switch out of config mode
-  digitalWrite(LORAM0, LOW);  //Set Lora to normal mode
-  digitalWrite(LORAM1, LOW);  //Set Lora to normal mode
-  Serial.println(F("[LoRa] (Config) Switching out of config mode..."));
-
-  delay(500); //Wait for stuff to init
+  delay(300); //Wait for stuff to init
   Serial.println(F("[LoRa] (Config) Complete."));
 }
 
@@ -525,6 +511,7 @@ void send_packet_normal() {
 //  Serial.println();
   
   packet_normal packet = {static_cast<int16_t>(currentFilteredAltitude), maxAltitudeSeen, startingAltitude, currentMode, gps.location.lat(), gps.location.lng(), gps.altitude.meters(), gps.speed.mps(), gps.satellites.value(), static_cast<int16_t>(gps.hdop.value()), gpsStatus.value(), gps_valid};
-  Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
-  Serial2.write(reinterpret_cast<char*>(&packet), sizeof packet);
+  //Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
+  //Serial2.write(reinterpret_cast<char*>(&packet), sizeof packet);
+  e32ttl100.sendFixedMessage(0,3,0x17,&packet, sizeof(packet));
 }
