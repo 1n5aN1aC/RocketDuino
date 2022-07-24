@@ -66,10 +66,12 @@ bool     GPSforward              = false;
 elapsedMillis lastGPSReceive;
 
 typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes   (58 on-air) [Must wait 3-byte time between packets if <58bytes]
-  int16_t  currentAlt;        //2 bytes
-  int16_t  maxAlt;            //2 bytes
-  int16_t  startingAlt;       //2 bytes
+  int16_t  timeStamp;         //2 bytes
   uint8_t  currentMode;       //1 byte
+  int16_t  currentAlt;        //2 bytes
+  int16_t  startingAlt;       //2 bytes
+  int16_t  maxAlt;            //2 bytes
+  
   double   latitude;          //8 bytes
   double   longitude;         //8 bytes
   uint16_t gpsAlt;            //2 bytes
@@ -510,7 +512,7 @@ void send_packet_normal() {
 //  Serial.print(gps_valid);
 //  Serial.println();
   
-  packet_normal packet = {static_cast<int16_t>(currentFilteredAltitude), maxAltitudeSeen, startingAltitude, currentMode, gps.location.lat(), gps.location.lng(), gps.altitude.meters(), gps.speed.mps(), gps.satellites.value(), static_cast<int16_t>(gps.hdop.value()), gpsStatus.value(), gps_valid};
+  packet_normal packet = {0, currentMode, static_cast<int16_t>(currentFilteredAltitude), startingAltitude, maxAltitudeSeen, gps.location.lat(), gps.location.lng(), gps.altitude.meters(), gps.speed.mps(), gps.satellites.value(), static_cast<int16_t>(gps.hdop.value()), gpsStatus.value(), gps_valid};
   //Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
   //Serial2.write(reinterpret_cast<char*>(&packet), sizeof packet);
   e32ttl100.sendFixedMessage(0,3,0x17,&packet, sizeof(packet));
