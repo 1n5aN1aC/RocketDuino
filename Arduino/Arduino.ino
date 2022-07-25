@@ -4,9 +4,8 @@
 // Purpose: Handles all logic for the RocketDuino
 //
 // TODO:
-// 0. Increase transmission power to maximum.  (is min right now)
-// 1. Mode for Serial Passthrough to GPS.  (To upload sat info, etc.)
-// 2. Send transmitted data via local serial as well.  (For wire transmission)
+// 1. Increase transmission power to maximum.  (is min right now)
+// 2. Mode for Serial Passthrough to GPS.  (To upload sat info, etc.)
 //
 
 #include "Arduino.h"
@@ -66,7 +65,7 @@ bool     GPSforward              = false;
 elapsedMillis lastGPSReceive;
 
 typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes   (58 on-air) [Must wait 3-byte time between packets if <58bytes]
-  int16_t  timeStamp;         //2 bytes
+  uint32_t timeStamp;         //4 bytes
   uint8_t  currentMode;       //1 byte
   int16_t  currentAlt;        //2 bytes
   int16_t  startingAlt;       //2 bytes
@@ -74,7 +73,7 @@ typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes  
   
   double   latitude;          //8 bytes
   double   longitude;         //8 bytes
-  uint16_t gpsAlt;            //2 bytes
+  float    gpsAlt;            //4 bytes
   uint16_t gpsSpeedMPS;       //2 bytes
   uint8_t  gpsSats;           //1 byte
   uint16_t gpsHDOP;           //2 bytes
@@ -347,7 +346,7 @@ void update_barometer() {
 //
 void calculate_mode() {
   if (lastModeUpdate > FREQUENCY_UPDATE_MODE) {
-    lastModeUpdate = lastModeUpdate - FREQUENCY_UPDATE_MODE;
+    lastModeUpdate = 0;
 
     // Mode 0 = Boot
     if (currentMode == 0) {
@@ -418,7 +417,7 @@ void update_gps_receive() {
 void update_buzzer() {
   if (lastBuzzerUpdate > FREQUENCY_UPDATE_BUZZER) {
     //Update buzzer
-    lastBuzzerUpdate = lastBuzzerUpdate - FREQUENCY_UPDATE_BUZZER;
+    lastBuzzerUpdate = 0;
     if (currentMode == 0) {
       digitalWrite(LED1, HIGH); // Status LED on for duration
       tone(BUZZER, 2000, 75);   // Send 2KHz sound signal for 75ms
@@ -467,7 +466,7 @@ void update_lora_receive() {
 
 void update_lora_send() {
   if (lastLoraTX > FREQUENCY_TX_LORA) {
-    lastLoraTX = lastLoraTX - FREQUENCY_TX_LORA;
+    lastLoraTX = 0;
 
     send_packet_normal();
   }
@@ -511,8 +510,21 @@ void send_packet_normal() {
 //    Serial.print(",");
 //  Serial.print(gps_valid);
 //  Serial.println();
-  
-  packet_normal packet = {0, currentMode, static_cast<int16_t>(currentFilteredAltitude), startingAltitude, maxAltitudeSeen, gps.location.lat(), gps.location.lng(), gps.altitude.meters(), gps.speed.mps(), gps.satellites.value(), static_cast<int16_t>(gps.hdop.value()), gpsStatus.value(), gps_valid};
+
+  packet_normal packet = {
+    millis(),
+    currentMode,
+    static_cast<int16_t>(currentFilteredAltitude),
+    startingAltitude,
+    maxAltitudeSeen,
+    gps.location.lat(),
+    gps.location.lng(),
+    static_cast<float>   (gps.altitude.meters()),
+    static_cast<uint16_t>(gps.speed.mps()),
+    static_cast<uint8_t> (gps.satellites.value()),
+    static_cast<uint16_t>(gps.hdop.value()),
+    static_cast<uint8_t> (String(gpsStatus.value()).toInt()),
+    gps_valid};
   //Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
   //Serial2.write(reinterpret_cast<char*>(&packet), sizeof packet);
   e32ttl100.sendFixedMessage(0,3,0x17,&packet, sizeof(packet));
