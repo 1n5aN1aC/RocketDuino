@@ -64,7 +64,7 @@ int sizeOfExtraSerialBuffer      = 300;
 bool     GPSforward              = false;
 elapsedMillis lastGPSReceive;
 
-typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes   (58 on-air) [Must wait 3-byte time between packets if <58bytes]
+struct __attribute__((packed)) packet_normal {
   uint32_t timeStamp;         //4 bytes
   uint8_t  currentMode;       //1 byte
   int16_t  currentAlt;        //2 bytes
@@ -73,13 +73,16 @@ typedef struct __attribute__((packed)) packet_normal { //Maximum 51 / 58 Bytes  
   
   double   latitude;          //8 bytes
   double   longitude;         //8 bytes
-  float    gpsAlt;            //4 bytes
+  uint16_t gpsAlt;            //2 bytes
   uint16_t gpsSpeedMPS;       //2 bytes
   uint8_t  gpsSats;           //1 byte
   uint16_t gpsHDOP;           //2 bytes
   uint8_t  gps_mode;          //1 byte (only 2 bits needed)
   uint8_t  gps_valid;         //1 byte (only 1 bit needed)
-};
+  uint16_t gps_receivedSents; //2 bytes
+  uint8_t  gps_checkFails;    //1 byte
+  uint8_t  checksum;          //1 byte
+};                   //TOTAL = 40 bytes, maximum 51 / 58 Bytes   (58 on-air) [Must wait 3-byte time between packets if <58bytes]
 
 // Init Values
 int16_t  maxAltitudeSeen    = -32768;   //Highest we've been to
@@ -476,13 +479,13 @@ void send_packet_normal() {
   //When was the last time we got GPS packets?
   uint8_t gps_valid = 0;
   if (gps.altitude.age() > 1050) {
-    gps_valid += 1;    //TinyGPS++ says it was updated within last second.
-  } 
+    gps_valid += 1;    //TinyGPS++ says it wasn't updated within last second.
+  }
   if (lastGPSReceive > 1000) {
-    gps_valid += 2;
+    gps_valid += 2;    //We haven't received any gps serial to even pass it on to TinyGPS++.
   }
   if (!gps.altitude.isValid()) {
-    gps_valid += 4;
+    gps_valid += 4;    //Something wrong with the altitude fix?
   }
 
 //  Serial.print(F("[DEBUG] "));
@@ -519,12 +522,26 @@ void send_packet_normal() {
     maxAltitudeSeen,
     gps.location.lat(),
     gps.location.lng(),
-    static_cast<float>   (gps.altitude.meters()),
+    static_cast<uint16_t>(gps.altitude.meters()),
     static_cast<uint16_t>(gps.speed.mps()),
     static_cast<uint8_t> (gps.satellites.value()),
     static_cast<uint16_t>(gps.hdop.value()),
     static_cast<uint8_t> (String(gpsStatus.value()).toInt()),
-    gps_valid};
+    gps_valid,
+    static_cast<uint16_t>(gps.passedChecksum()),
+    static_cast<uint8_t> (gps.failedChecksum()),
+    0 //checksum
+  };
+  //Serial.println(sizeof(packet));
+
+  //Calculate checksum and add to packet
+  uint8_t sum = 0;
+  uint8_t *p = (uint8_t *)&packet;
+  for (uint8_t i=0; i<sizeof(packet); i++) {
+      sum += p[i];
+  }
+  packet.checksum = sum;
+
   //Serial.write(reinterpret_cast<char*>(&packet), sizeof packet);
   //Serial2.write(reinterpret_cast<char*>(&packet), sizeof packet);
   e32ttl100.sendFixedMessage(0,3,0x17,&packet, sizeof(packet));
